@@ -73,6 +73,16 @@ table 30151 "Shpfy Company Location"
             Caption = 'Tax Registration Id';
             DataClassification = CustomerContent;
         }
+        field(13; "Default"; Boolean)
+        {
+            Caption = 'Default';
+            DataClassification = CustomerContent;
+        }
+        field(14; "Shpfy Payment Terms Id"; BigInteger)
+        {
+            Caption = 'Shpfy Payment Terms Id';
+            DataClassification = CustomerContent;
+        }
     }
     keys
     {

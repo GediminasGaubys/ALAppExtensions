@@ -3,9 +3,9 @@ namespace Microsoft.Integration.Shopify;
 using Microsoft.Sales.Customer;
 
 /// <summary>
-/// Codeunit ShoShpfypify Comp. By Email/Phone (ID 30304) implements Interface Shpfy ICompany Mapping.
+/// Codeunit Shpfy Comp. By Tax Id (ID 30366) implements Interface Shpfy ICompany Mapping.
 /// </summary>
-codeunit 30304 "Shpfy Comp. By Email/Phone" implements "Shpfy ICompany Mapping"
+codeunit 30366 "Shpfy Comp. By Tax Id" implements "Shpfy ICompany Mapping"
 {
     Access = Internal;
 
@@ -33,8 +33,9 @@ codeunit 30304 "Shpfy Comp. By Email/Phone" implements "Shpfy ICompany Mapping"
     var
         Customer: Record Customer;
         ShopifyCustomer: Record "Shpfy Customer";
-        CustomerMapping: Codeunit "Shpfy Customer Mapping";
-        PhoneFilter: Text;
+        Shop: Record "Shpfy Shop";
+        CompanyLocation: Record "Shpfy Company Location";
+        ShpfyTaxRegistrationIdMapping: Interface "Shpfy Tax Registration Id Mapping";
     begin
         if not IsNullGuid(ShopifyCompany."Customer SystemId") then
             if Customer.GetBySystemId(ShopifyCompany."Customer SystemId") then
@@ -45,27 +46,13 @@ codeunit 30304 "Shpfy Comp. By Email/Phone" implements "Shpfy ICompany Mapping"
             end;
 
         if IsNullGuid(ShopifyCompany."Customer SystemId") then begin
-            if TempShopifyCustomer.Email <> '' then begin
-                Customer.SetFilter("E-Mail", '@' + TempShopifyCustomer.Email);
-                if Customer.FindFirst() then begin
-                    ShopifyCompany."Customer SystemId" := Customer.SystemId;
-
-                    if not ShopifyCustomer.Get(TempShopifyCustomer.Id) then begin
-                        ShopifyCustomer.Copy(TempShopifyCustomer);
-                        ShopifyCustomer."Customer SystemId" := Customer.SystemId;
-                        ShopifyCustomer.Insert();
-                    end;
-
-                    ShopifyCompany."Main Contact Customer Id" := ShopifyCustomer.Id;
-                    ShopifyCompany.Modify();
-                    exit(true);
-                end;
-            end;
-            if TempShopifyCustomer."Phone No." <> '' then begin
-                PhoneFilter := CustomerMapping.CreatePhoneFilter(TempShopifyCustomer."Phone No.");
-                if PhoneFilter <> '' then begin
+            if ShopifyCompany."Location Id" <> 0 then begin
+                CompanyLocation.Get(ShopifyCompany."Location Id");
+                if CompanyLocation."Tax Registration Id" <> '' then begin
                     Clear(Customer);
-                    Customer.SetFilter("Phone No.", PhoneFilter);
+                    Shop.Get(ShopifyCompany."Shop Code");
+                    ShpfyTaxRegistrationIdMapping := Shop."Shpfy Comp. Tax Id Mapping";
+                    ShpfyTaxRegistrationIdMapping.SetMappingFiltersForCustomers(Customer, CompanyLocation);
                     if Customer.FindFirst() then begin
                         ShopifyCompany."Customer SystemId" := Customer.SystemId;
 
