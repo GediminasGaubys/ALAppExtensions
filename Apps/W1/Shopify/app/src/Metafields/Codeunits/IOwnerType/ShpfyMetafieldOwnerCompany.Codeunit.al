@@ -1,10 +1,11 @@
 namespace Microsoft.Integration.Shopify;
 
-codeunit 30333 "Shpfy Metafield Owner Customer" implements "Shpfy IMetafield Owner Type"
+codeunit 30313 "Shpfy Metafield Owner Company" implements "Shpfy IMetafield Owner Type"
 {
+
     procedure GetTableId(): Integer
     begin
-        exit(Database::"Shpfy Customer");
+        exit(Database::"Shpfy Company");
     end;
 
     procedure RetrieveMetafieldIdsFromShopify(OwnerId: BigInteger) MetafieldIds: Dictionary of [BigInteger, DateTime]
@@ -20,10 +21,10 @@ codeunit 30333 "Shpfy Metafield Owner Customer" implements "Shpfy IMetafield Own
         Id: BigInteger;
         UpdatedAt: DateTime;
     begin
-        Parameters.Add('CustomerId', Format(OwnerId));
-        GraphQLType := GraphQLType::CustomerMetafieldIds;
+        Parameters.Add('CompanyId', Format(OwnerId));
+        GraphQLType := GraphQLType::CompanyMetafieldIds;
         JResponse := CommunicationMgt.ExecuteGraphQL(GraphQLType, Parameters);
-        if JsonHelper.GetJsonArray(JResponse, JMetafields, 'data.product.metafields.edges') then
+        if JsonHelper.GetJsonArray(JResponse, JMetafields, 'data.company.metafields.edges') then
             foreach JItem in JMetafields do
                 if JsonHelper.GetJsonObject(JItem.AsObject(), JNode, 'node') then begin
                     Id := CommunicationMgt.GetIdOfGId(JsonHelper.GetValueAsText(JNode, 'legacyResourceId'));
@@ -34,12 +35,10 @@ codeunit 30333 "Shpfy Metafield Owner Customer" implements "Shpfy IMetafield Own
 
     procedure GetShopCode(OwnerId: BigInteger): Code[20]
     var
-        Customer: Record "Shpfy Customer";
-        Shop: Record "Shpfy Shop";
+        Company: Record "Shpfy Company";
     begin
-        Customer.Get(OwnerId);
-        Shop.SetRange("Shop Id", Customer."Shop Id");
-        Shop.FindFirst();
-        exit(Shop.Code);
+        Company.Get(OwnerId);
+        exit(Company."Shop Code");
     end;
+
 }
