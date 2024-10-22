@@ -46,4 +46,5 @@ codeunit 139636 "Shpfy Company Export Test"
         LibraryAssert.AreEqual(Customer.City, CompanyLocation.City, 'City');
         LibraryAssert.AreEqual(Customer."Country/Region Code", CompanyLocation."Country/Region Code", 'Country');
     end;
+
 }
