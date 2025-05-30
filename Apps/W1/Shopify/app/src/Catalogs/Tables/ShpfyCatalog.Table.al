@@ -6,6 +6,7 @@ using Microsoft.Foundation.Address;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.Currency;
 
 /// <summary>
 /// Table Shpfy Catalog (ID 30152).
@@ -117,6 +118,17 @@ table 30152 "Shpfy Catalog"
             DataClassification = CustomerContent;
             TableRelation = "Customer";
         }
+        field(18; "Catalog Type"; Enum "Shpfy Catalog Type")
+        {
+            Caption = 'Catalog Type';
+            DataClassification = CustomerContent;
+        }
+        field(19; "Currency Code"; Code[10])
+        {
+            Caption = 'Currency Code';
+            DataClassification = CustomerContent;
+            TableRelation = "Currency";
+        }
     }
     keys
     {
@@ -125,4 +137,17 @@ table 30152 "Shpfy Catalog"
             Clustered = true;
         }
     }
+
+    trigger OnDelete()
+    begin
+        ClearCatalogMarketRelations();
+    end;
+
+    local procedure ClearCatalogMarketRelations()
+    var
+        MarketCatalogRelation: Record "Shpfy Market Catalog Relation";
+    begin
+        MarketCatalogRelation.SetRange("Catalog Id", Id);
+        MarketCatalogRelation.DeleteAll(true);
+    end;
 }
