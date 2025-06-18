@@ -523,6 +523,11 @@ page 30101 "Shpfy Shop Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies whether the posted sales invoices can be synchronized to Shopify.';
                 }
+                field("Currency Handling"; Rec."Currency Handling")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies which currency is used in Shopify orders processing.';
+                }
             }
             group(ReturnsAndRefunds)
             {

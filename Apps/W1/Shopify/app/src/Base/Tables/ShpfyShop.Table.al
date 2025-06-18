@@ -762,6 +762,12 @@ table 30102 "Shpfy Shop"
             Caption = 'Company Tax Id Mapping';
             DataClassification = CustomerContent;
         }
+        field(135; "Currency Handling"; Enum "Shpfy Currency Handling")
+        {
+            Caption = 'Currency Handling';
+            DataClassification = SystemMetadata;
+            InitValue = "Shop Currency";
+        }
         field(200; "Shop Id"; Integer)
         {
             DataClassification = SystemMetadata;

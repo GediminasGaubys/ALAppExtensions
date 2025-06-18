@@ -109,6 +109,12 @@ codeunit 30166 "Shpfy Process Order"
             SalesHeader."Ship-to County" := CopyStr(ShopifyOrderHeader."Ship-to County", 1, MaxStrLen(SalesHeader."Ship-to County"));
             SalesHeader."Ship-to Contact" := ShopifyOrderHeader."Ship-to Contact Name";
             SalesHeader.Validate("Prices Including VAT", ShopifyOrderHeader."VAT Included");
+            case this.ShopifyShop."Currency Handling" of
+                Enum::"Shpfy Currency Handling"::"Shop Currency":
+                    SalesHeader.Validate("Currency Code", this.ShopifyShop."Currency Code");
+                Enum::"Shpfy Currency Handling"::"Presentment Currency":
+                    SalesHeader.Validate("Currency Code", ShopifyOrderHeader."Presentment Currency Code");
+            end;
             SalesHeader.Validate("Currency Code", ShopifyShop."Currency Code");
             SalesHeader."Shpfy Order Id" := ShopifyOrderHeader."Shopify Order Id";
             SalesHeader."Shpfy Order No." := ShopifyOrderHeader."Shopify Order No.";
@@ -240,8 +246,18 @@ codeunit 30166 "Shpfy Process Order"
                     SalesLine.Validate("Unit of Measure Code", ShopifyOrderLine."Unit of Measure Code");
                     SalesLine.Validate("Variant Code", ShopifyOrderLine."Variant Code");
                     SalesLine.Validate(Quantity, ShopifyOrderLine.Quantity);
-                    SalesLine.Validate("Unit Price", ShopifyOrderLine."Unit Price");
-                    SalesLine.Validate("Line Discount Amount", ShopifyOrderLine."Discount Amount");
+                    case this.ShopifyShop."Currency Handling" of
+                        Enum::"Shpfy Currency Handling"::"Shop Currency":
+                            begin
+                                SalesLine.Validate("Unit Price", ShopifyOrderLine."Unit Price");
+                                SalesLine.Validate("Line Discount Amount", ShopifyOrderLine."Discount Amount");
+                            end;
+                        Enum::"Shpfy Currency Handling"::"Presentment Currency":
+                            begin
+                                SalesLine.Validate("Unit Price", ShopifyOrderLine."Presentment Unit Price");
+                                SalesLine.Validate("Line Discount Amount", ShopifyOrderLine."Presentment Discount Amount");
+                            end;
+                    end;
                     SalesLine."Shpfy Order Line Id" := ShopifyOrderLine."Line Id";
                     SalesLine."Shpfy Order No." := ShopifyOrderHeader."Shopify Order No.";
                     SalesLine.Modify(true);
@@ -300,7 +316,8 @@ codeunit 30166 "Shpfy Process Order"
             until OrderShippingCharges.Next() = 0;
     end;
 
-    local procedure AssignItemCharges(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    local procedure AssignItemCharges(SalesHeader: Record "Sales Header";
+SalesLine: Record "Sales Line")
     var
         AssignItemChargeSales: Codeunit "Item Charge Assgnt. (Sales)";
         ItemChargeAssgntLineAmt: Decimal;
