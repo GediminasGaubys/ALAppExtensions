@@ -115,7 +115,6 @@ codeunit 30166 "Shpfy Process Order"
                 Enum::"Shpfy Currency Handling"::"Presentment Currency":
                     SalesHeader.Validate("Currency Code", ShopifyOrderHeader."Presentment Currency Code");
             end;
-            SalesHeader.Validate("Currency Code", ShopifyShop."Currency Code");
             SalesHeader."Shpfy Order Id" := ShopifyOrderHeader."Shopify Order Id";
             SalesHeader."Shpfy Order No." := ShopifyOrderHeader."Shopify Order No.";
             SalesHeader.Validate("Document Date", ShopifyOrderHeader."Document Date");

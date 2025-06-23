@@ -336,9 +336,10 @@ page 30113 "Shpfy Order"
                     ApplicationArea = All;
                     ToolTip = 'Specifies if tax is included in the unit price.';
                 }
-                field(CurrencyCode; Rec."Currency Code")
+                field(CurrencyCode; this.CurrencyCode)
                 {
                     ApplicationArea = All;
+                    Caption = 'Currency Code';
                     Editable = false;
                     ToolTip = 'Specifies the currency of amounts on the document.';
                 }
@@ -574,6 +575,7 @@ page 30113 "Shpfy Order"
 
                     trigger OnAction();
                     var
+                        Shop: Record "Shpfy Shop";
                         ShopifyOrderHeader: Record "Shpfy Order Header";
                         ProcessShopifyOrders: Codeunit "Shpfy Process Orders";
                     begin
@@ -585,6 +587,8 @@ page 30113 "Shpfy Order"
                             Commit();
                             ShopifyOrderHeader.Get(Rec."Shopify Order Id");
                             ShopifyOrderHeader.SetRecFilter();
+                            Shop.Get(Rec."Shop Code");
+                            ProcessShopifyOrders.SetShop(Shop);
                             ProcessShopifyOrders.ProcessShopifyOrders(ShopifyOrderHeader);
                             Rec.Get(Rec."Shopify Order Id");
                         end;
@@ -975,10 +979,30 @@ page 30113 "Shpfy Order"
         OrderCancelFailedErr: Label 'The order could not be cancelled. You can see the error message from Shopify Log Entries.';
         LogEntriesLbl: Label 'Log Entries';
         WorkDescription: Text;
+        CurrencyCode: Code[10];
 
     trigger OnAfterGetRecord()
+    var
+        Shop: Record "Shpfy Shop";
     begin
-        WorkDescription := Rec.GetWorkDescription();
+        Shop.Get(Rec."Shop Code");
+
+        if not Rec.Processed then
+            case Shop."Currency Handling" of
+                "Shpfy Currency Handling"::"Shop Currency":
+                    this.CurrencyCode := Rec."Currency Code";
+                "Shpfy Currency Handling"::"Presentment Currency":
+                    this.CurrencyCode := Rec."Presentment Currency Code"
+            end
+        else
+            case Rec."Processed w. Currency Handling" of
+                "Shpfy Currency Handling"::"Shop Currency":
+                    this.CurrencyCode := Rec."Currency Code";
+                "Shpfy Currency Handling"::"Presentment Currency":
+                    this.CurrencyCode := Rec."Presentment Currency Code"
+            end;
+
+        this.WorkDescription := Rec.GetWorkDescription();
     end;
 
     trigger OnOpenPage()
