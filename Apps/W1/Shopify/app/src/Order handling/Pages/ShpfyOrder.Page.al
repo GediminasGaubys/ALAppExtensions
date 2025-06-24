@@ -300,34 +300,39 @@ page 30113 "Shpfy Order"
             group(InvoiceDetails)
             {
                 Caption = 'Invoice Details';
-                field(SubtotalAmount; Rec."Subtotal Amount")
+                field(SubtotalAmount; this.SubtotalAmount)
                 {
                     ApplicationArea = All;
+                    Caption = 'Subtotal Amount';
                     Editable = false;
                     ToolTip = 'Specifies the sum of the line amounts on all lines in the document minus any discount amounts.';
                 }
-                field(ShippingCostAmount; Rec."Shipping Charges Amount")
+                field(ShippingCostAmount; this.ShippingChargesAmount)
                 {
                     ApplicationArea = All;
+                    Caption = 'Shipping Charges Amount';
                     Editable = false;
                     ToolTip = 'Specifies the amount of the shipping cost.';
                 }
-                field(TotalAmount; Rec."Total Amount")
+                field(TotalAmount; this.TotalAmount)
                 {
                     ApplicationArea = All;
+                    Caption = 'Total Amount';
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the sum of the line amounts on all lines in the document minus any discount amounts plus the shipping costs.';
                 }
-                field(VATAmount; Rec."VAT Amount")
+                field(VATAmount; this.VATAmount)
                 {
                     ApplicationArea = All;
+                    Caption = 'VAT Amount';
                     Editable = false;
                     ToolTip = 'Specifies the sum of tax amounts on all lines in the document.';
                 }
-                field(DiscountAmount; Rec."Discount Amount")
+                field(DiscountAmount; this.DiscountAmount)
                 {
                     ApplicationArea = All;
+                    Caption = 'Discount Amount';
                     Editable = false;
                     ToolTip = 'Specifies the sum of all discount amount on all lines in the document.';
                 }
@@ -980,8 +985,19 @@ page 30113 "Shpfy Order"
         LogEntriesLbl: Label 'Log Entries';
         WorkDescription: Text;
         CurrencyCode: Code[10];
+        TotalAmount, SubtotalAmount : Decimal;
+        ShippingChargesAmount: Decimal;
+        VATAmount: Decimal;
+        DiscountAmount: Decimal;
+
 
     trigger OnAfterGetRecord()
+    begin
+        this.SetCurrencyAndAmounts();
+        this.WorkDescription := Rec.GetWorkDescription();
+    end;
+
+    local procedure SetCurrencyAndAmounts()
     var
         Shop: Record "Shpfy Shop";
     begin
@@ -990,23 +1006,38 @@ page 30113 "Shpfy Order"
         if not Rec.Processed then
             case Shop."Currency Handling" of
                 "Shpfy Currency Handling"::"Shop Currency":
-                    this.CurrencyCode := Rec."Currency Code";
+                    this.SetShopCurrencyAndAmounts();
                 "Shpfy Currency Handling"::"Presentment Currency":
-                    this.CurrencyCode := Rec."Presentment Currency Code"
+                    this.SetPresentmentCurrencyAndAmounts();
             end
         else
             case Rec."Processed w. Currency Handling" of
                 "Shpfy Currency Handling"::"Shop Currency":
-                    this.CurrencyCode := Rec."Currency Code";
+                    this.SetShopCurrencyAndAmounts();
                 "Shpfy Currency Handling"::"Presentment Currency":
-                    this.CurrencyCode := Rec."Presentment Currency Code"
+                    this.SetShopCurrencyAndAmounts();
             end;
-
-        this.WorkDescription := Rec.GetWorkDescription();
     end;
 
-    trigger OnOpenPage()
+    local procedure SetShopCurrencyAndAmounts()
     begin
+        this.CurrencyCode := Rec."Currency Code";
+        this.TotalAmount := Rec."Total Amount";
+        this.SubtotalAmount := Rec."Subtotal Amount";
+        this.ShippingChargesAmount := Rec."Shipping Charges Amount";
+        this.VATAmount := Rec."VAT Amount";
+        this.DiscountAmount := Rec."Discount Amount";
     end;
+
+    local procedure SetPresentmentCurrencyAndAmounts()
+    begin
+        this.CurrencyCode := Rec."Presentment Currency Code";
+        this.TotalAmount := Rec."Presentment Total Amount";
+        this.SubtotalAmount := Rec."Presentment Subtotal Amount";
+        this.ShippingChargesAmount := Rec."Pres. Shipping Charges Amount";
+        this.VATAmount := Rec."Presentment VAT Amount";
+        this.DiscountAmount := Rec."Presentment Discount Amount";
+    end;
+
 }
 
