@@ -117,16 +117,30 @@ page 30122 "Shpfy Order Subform"
     var
         UnitPrice: Decimal;
         DiscountAmount: Decimal;
+        ShowPresentmentCurrency: Boolean;
 
-    internal procedure SetPresentmentCurrency()
+    trigger OnAfterGetCurrRecord()
+    begin
+        if this.ShowPresentmentCurrency then
+            this.GetPresentmentCurrencyAmts()
+        else
+            this.GetShopCurrencyAmts();
+    end;
+
+    local procedure GetPresentmentCurrencyAmts()
     begin
         this.UnitPrice := Rec."Presentment Unit Price";
         this.DiscountAmount := Rec."Presentment Discount Amount";
     end;
 
-    internal procedure SetShopCurrency()
+    local procedure GetShopCurrencyAmts()
     begin
         this.UnitPrice := Rec."Unit Price";
         this.DiscountAmount := Rec."Discount Amount";
+    end;
+
+    internal procedure SetShowPresentmentCurrency(Show: Boolean)
+    begin
+        this.ShowPresentmentCurrency := Show;
     end;
 }

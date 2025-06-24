@@ -127,12 +127,10 @@ table 30142 "Shpfy Refund Header"
         field(108; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
-            DataClassification = SystemMetadata;
         }
         field(109; "Presentment Currency Code"; Code[10])
         {
             Caption = 'Presentment Currency Code';
-            DataClassification = SystemMetadata;
         }
 
     }

@@ -33,9 +33,10 @@ page 30146 "Shpfy Refund Lines"
                     ApplicationArea = All;
                     ToolTip = 'The quantity of a refunded line item.';
                 }
-                field(Amount; Rec.Amount)
+                field(Amount; this.Amount)
                 {
                     ApplicationArea = All;
+                    Caption = 'Amount';
                     ToolTip = 'The price of a refunded line item.';
                 }
                 field(LineDiscount; (Rec.Quantity * Rec.Amount) - Rec."Subtotal Amount")
@@ -46,14 +47,16 @@ page 30146 "Shpfy Refund Lines"
                     Editable = false;
                     BlankZero = true;
                 }
-                field("Subtotal Amount"; Rec."Subtotal Amount")
+                field("Subtotal Amount"; this.SubtotalAmount)
                 {
                     ApplicationArea = All;
+                    Caption = 'Subtotal Amount';
                     ToolTip = 'The subtotal price of a refunded line item.';
                 }
-                field("Total Tax Amount"; Rec."Total Tax Amount")
+                field("Total Tax Amount"; this.TotalTaxAmount)
                 {
                     ApplicationArea = All;
+                    Caption = 'Total Tax Amount';
                     ToolTip = 'The total tax charged on a refunded line item.';
                 }
                 field("Restock Type"; Rec."Restock Type")
@@ -93,4 +96,35 @@ page 30146 "Shpfy Refund Lines"
             }
         }
     }
+    var
+        Amount, SubtotalAmount : Decimal;
+        TotalTaxAmount: Decimal;
+        ShowPresentmentCurrency: Boolean;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        if this.ShowPresentmentCurrency then
+            this.SetPresentmentCurrency()
+        else
+            this.SetShopCurrency();
+    end;
+
+    internal procedure SetShowPresentmentCurrency(Show: Boolean)
+    begin
+        this.ShowPresentmentCurrency := Show;
+    end;
+
+    local procedure SetPresentmentCurrency()
+    begin
+        this.Amount := Rec."Presentment Amount";
+        this.SubtotalAmount := Rec."Presentment Subtotal Amount";
+        this.TotalTaxAmount := Rec."Presentment Total Tax Amount";
+    end;
+
+    local procedure SetShopCurrency()
+    begin
+        this.Amount := Rec.Amount;
+        this.SubtotalAmount := Rec."Subtotal Amount";
+        this.TotalTaxAmount := Rec."Total Tax Amount";
+    end;
 }
