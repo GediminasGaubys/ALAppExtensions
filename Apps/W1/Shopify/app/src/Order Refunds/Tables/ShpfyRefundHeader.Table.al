@@ -124,6 +124,17 @@ table 30142 "Shpfy Refund Header"
             CalcFormula = exist("Shpfy Doc. Link To Doc." where("Shopify Document Type" = const("Shopify Shop Refund"), "Shopify Document Id" = field("Refund Id")));
             Editable = false;
         }
+        field(108; "Currency Code"; Code[10])
+        {
+            Caption = 'Currency Code';
+            DataClassification = SystemMetadata;
+        }
+        field(109; "Presentment Currency Code"; Code[10])
+        {
+            Caption = 'Presentment Currency Code';
+            DataClassification = SystemMetadata;
+        }
+
     }
     keys
     {
