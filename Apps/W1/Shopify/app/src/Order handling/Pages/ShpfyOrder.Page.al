@@ -1027,6 +1027,7 @@ page 30113 "Shpfy Order"
         this.ShippingChargesAmount := Rec."Shipping Charges Amount";
         this.VATAmount := Rec."VAT Amount";
         this.DiscountAmount := Rec."Discount Amount";
+        CurrPage.ShopifyOrderLines.Page.SetShopCurrency();
     end;
 
     local procedure SetPresentmentCurrencyAndAmounts()
@@ -1037,6 +1038,7 @@ page 30113 "Shpfy Order"
         this.ShippingChargesAmount := Rec."Pres. Shipping Charges Amount";
         this.VATAmount := Rec."Presentment VAT Amount";
         this.DiscountAmount := Rec."Presentment Discount Amount";
+        CurrPage.ShopifyOrderLines.Page.SetPresentmentCurrency();
     end;
 
 }

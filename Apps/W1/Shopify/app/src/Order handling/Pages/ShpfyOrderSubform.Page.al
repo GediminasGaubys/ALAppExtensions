@@ -66,15 +66,17 @@ page 30122 "Shpfy Order Subform"
                     Editable = false;
                     ToolTip = 'Specifies how many units are being sold.';
                 }
-                field(UnitPrice; Rec."Unit Price")
+                field(UnitPrice; this.UnitPrice)
                 {
                     ApplicationArea = All;
+                    Caption = 'Unit Price';
                     Editable = false;
                     ToolTip = 'Specifies the prices for one unit on the line.';
                 }
-                field(DiscountAmount; Rec."Discount Amount")
+                field(DiscountAmount; this.DiscountAmount)
                 {
                     ApplicationArea = All;
+                    Caption = 'Discount Amount';
                     Editable = false;
                     ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
                 }
@@ -111,4 +113,20 @@ page 30122 "Shpfy Order Subform"
             }
         }
     }
+
+    var
+        UnitPrice: Decimal;
+        DiscountAmount: Decimal;
+
+    internal procedure SetPresentmentCurrency()
+    begin
+        this.UnitPrice := Rec."Presentment Unit Price";
+        this.DiscountAmount := Rec."Presentment Discount Amount";
+    end;
+
+    internal procedure SetShopCurrency()
+    begin
+        this.UnitPrice := Rec."Unit Price";
+        this.DiscountAmount := Rec."Discount Amount";
+    end;
 }
