@@ -106,7 +106,12 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
                 SalesHeader."Ship-to Post Code" := CopyStr(OrderHeader."Ship-to Post Code", 1, MaxStrLen(SalesHeader."Ship-to Post Code"));
                 SalesHeader."Ship-to County" := CopyStr(OrderHeader."Ship-to County", 1, MaxStrLen(SalesHeader."Ship-to County"));
                 SalesHeader."Ship-to Contact" := OrderHeader."Ship-to Contact Name";
-                SalesHeader.Validate("Currency Code", Shop."Currency Code");
+                case Shop."Currency Handling" of
+                    "Shpfy Currency Handling"::"Shop Currency":
+                        SalesHeader.Validate("Currency Code", Shop."Currency Code");
+                    "Shpfy Currency Handling"::"Presentment Currency":
+                        SalesHeader.Validate("Currency Code", OrderHeader."Presentment Currency Code");
+                end;
                 SalesHeader.Validate("Document Date", DT2Date(RefundHeader."Created At"));
                 if OrderMgt.FindTaxArea(OrderHeader, ShopifyTaxArea) and (ShopifyTaxArea."Tax Area Code" <> '') then
                     SalesHeader.Validate("Tax Area Code", ShopifyTaxArea."Tax Area Code");
@@ -170,6 +175,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
             Shop.TestField("Refund Account");
             SalesLine.Validate("No.", Shop."Refund Account");
             SalesLine.Validate(Quantity, 1);
+            //TODO handle code benath 
             if SalesHeader."Prices Including VAT" then
                 SalesLine.Validate("Unit Price", RefundHeader."Total Refunded Amount" - SalesHeader."Amount Including VAT")
             else
@@ -226,8 +232,18 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
 
                                 end;
                             SalesLine.Validate(Quantity, RefundLine.Quantity);
-                            SalesLine.Validate("Unit Price", RefundLine.Amount);
-                            SalesLine.Validate("Line Discount Amount", (SalesLine."Unit Price" * SalesLine.Quantity) - RefundLine."Subtotal Amount");
+                            case Shop."Currency Handling" of
+                                "Shpfy Currency Handling"::"Shop Currency":
+                                    begin
+                                        SalesLine.Validate("Unit Price", RefundLine.Amount);
+                                        SalesLine.Validate("Line Discount Amount", (SalesLine."Unit Price" * SalesLine.Quantity) - RefundLine."Subtotal Amount");
+                                    end;
+                                "Shpfy Currency Handling"::"Presentment Currency":
+                                    begin
+                                        SalesLine.Validate("Unit Price", RefundLine."Presentment Amount");
+                                        SalesLine.Validate("Line Discount Amount", (SalesLine."Unit Price" * SalesLine.Quantity) - RefundLine."Presentment Subtotal Amount");
+                                    end;
+                            end;
                         end;
                         SalesLine."Shpfy Refund Id" := RefundHeader."Refund Id";
                         SalesLine."Shpfy Refund Line Id" := RefundLine."Refund Line Id";
@@ -264,6 +280,12 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
                         SalesLine.Validate(Type, "Sales Line Type"::"G/L Account");
                         SalesLine.Validate("No.", Shop."Refund Account");
                         SalesLine.Validate(Quantity, 1);
+                        case Shop."Currency Handling" of
+                            "Shpfy Currency Handling"::"Shop Currency":
+                                SalesLine.Validate("Unit Price", RefundLine."Subtotal Amount");
+                            "Shpfy Currency Handling"::"Presentment Currency":
+                                SalesLine.Validate("Unit Price", RefundLine."Presentment Subtotal Amount");
+                        end;
                         SalesLine.Validate("Unit Price", RefundLine."Presentment Subtotal Amount");
                         SalesLine."Shpfy Refund Id" := RefundHeader."Refund Id";
                         SalesLine."Shpfy Refund Line Id" := RefundLine."Refund Line Id";

@@ -1015,7 +1015,7 @@ page 30113 "Shpfy Order"
                 "Shpfy Currency Handling"::"Shop Currency":
                     this.SetShopCurrencyAndAmounts();
                 "Shpfy Currency Handling"::"Presentment Currency":
-                    this.SetShopCurrencyAndAmounts();
+                    this.SetPresentmentCurrencyAndAmounts();
             end;
     end;
 
