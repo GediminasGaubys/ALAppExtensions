@@ -132,7 +132,6 @@ table 30142 "Shpfy Refund Header"
         {
             Caption = 'Presentment Currency Code';
         }
-
     }
     keys
     {

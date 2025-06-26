@@ -204,23 +204,25 @@ page 30145 "Shpfy Refund"
     local procedure SetCurrencyAndAmounts()
     var
         Shop: Record "Shpfy Shop";
+        OrderHeader: Record "Shpfy Order Header";
     begin
         Shop.Get(Rec."Shop Code");
+        if OrderHeader.Get(Rec."Order Id") then;
 
-        if not Rec."Is Processed" then
+        if not OrderHeader.Processed then
             case Shop."Currency Handling" of
                 "Shpfy Currency Handling"::"Shop Currency":
                     this.SetShopCurrencyAndAmounts();
                 "Shpfy Currency Handling"::"Presentment Currency":
                     this.SetPresentmentCurrencyAndAmounts();
             end
-        // else
-        //     case Rec."Processed w. Currency Handling" of
-        //         "Shpfy Currency Handling"::"Shop Currency":
-        //             this.SetShopCurrencyAndAmounts();
-        //         "Shpfy Currency Handling"::"Presentment Currency":
-        //             this.SetShopCurrencyAndAmounts();
-        //     end;
+        else
+            case OrderHeader."Processed w. Currency Handling" of
+                "Shpfy Currency Handling"::"Shop Currency":
+                    this.SetShopCurrencyAndAmounts();
+                "Shpfy Currency Handling"::"Presentment Currency":
+                    this.SetPresentmentCurrencyAndAmounts();
+            end;
     end;
 
     local procedure SetShopCurrencyAndAmounts()

@@ -8,6 +8,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
     var
         SalesHeader: Record "Sales Header";
         Shop: Record "Shpfy Shop";
+        Order: Record "Shpfy Order Header";
         RefundProcessEvents: Codeunit "Shpfy Refund Process Events";
         RefundId: BigInteger;
         SalesDocumentType: Enum "Sales Document Type";
@@ -38,7 +39,8 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
         ReleaseSalesDocument: Codeunit "Release Sales Document";
     begin
         if RefundHeader.Get(RefundId) then begin
-            Shop.Get(RefundHeader."Shop Code");
+            this.Shop.Get(RefundHeader."Shop Code");
+            this.Order.Get(RefundHeader."Order Id");
             if DoCreateSalesHeader(RefundHeader, SalesDocumentType, SalesHeader) then begin
                 CreateSalesLines(RefundHeader, SalesHeader);
                 RefundHeader.Get(RefundHeader."Refund Id");
@@ -106,7 +108,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
                 SalesHeader."Ship-to Post Code" := CopyStr(OrderHeader."Ship-to Post Code", 1, MaxStrLen(SalesHeader."Ship-to Post Code"));
                 SalesHeader."Ship-to County" := CopyStr(OrderHeader."Ship-to County", 1, MaxStrLen(SalesHeader."Ship-to County"));
                 SalesHeader."Ship-to Contact" := OrderHeader."Ship-to Contact Name";
-                case Shop."Currency Handling" of
+                case Order."Processed w. Currency Handling" of
                     "Shpfy Currency Handling"::"Shop Currency":
                         SalesHeader.Validate("Currency Code", Shop."Currency Code");
                     "Shpfy Currency Handling"::"Presentment Currency":
@@ -163,6 +165,8 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
         CreateSalesLinesFromRefundShippingLines(RefundHeader, SalesHeader, LineNo);
 
         SalesHeader.CalcFields(Amount, "Amount Including VAT");
+        // todo handle based on case preentment and non-presentment currency
+        // extract code to function and do separate funtions with todo code
         if SalesHeader."Amount Including VAT" <> RefundHeader."Total Refunded Amount" then begin
             LineNo += 10000;
             SalesLine.Init();
