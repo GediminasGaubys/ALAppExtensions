@@ -144,7 +144,6 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
 
     local procedure CreateSalesLines(RefundHeader: Record "Shpfy Refund Header"; SalesHeader: Record "Sales Header")
     var
-        SalesLine: Record "Sales Line";
         RefundLine: Record "Shpfy Refund Line";
         ReturnLine: Record "Shpfy Return Line";
         LineNo: Integer;
@@ -164,29 +163,11 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
 
         CreateSalesLinesFromRefundShippingLines(RefundHeader, SalesHeader, LineNo);
 
-        SalesHeader.CalcFields(Amount, "Amount Including VAT");
+
         // todo handle based on case preentment and non-presentment currency
         // extract code to function and do separate funtions with todo code
-        if SalesHeader."Amount Including VAT" <> RefundHeader."Total Refunded Amount" then begin
-            LineNo += 10000;
-            SalesLine.Init();
-            SalesLine.SetHideValidationDialog(true);
-            SalesLine.Validate("Document Type", SalesHeader."Document Type");
-            SalesLine.Validate("Document No.", SalesHeader."No.");
-            SalesLine.Validate("Line No.", LineNo);
-            SalesLine.Insert(true);
-            SalesLine.Validate(Type, "Sales Line Type"::"G/L Account");
-            Shop.TestField("Refund Account");
-            SalesLine.Validate("No.", Shop."Refund Account");
-            SalesLine.Validate(Quantity, 1);
-            //TODO handle code benath 
-            if SalesHeader."Prices Including VAT" then
-                SalesLine.Validate("Unit Price", RefundHeader."Total Refunded Amount" - SalesHeader."Amount Including VAT")
-            else
-                SalesLine.Validate("Unit Price", (RefundHeader."Total Refunded Amount" - SalesHeader."Amount Including VAT") / (1 + SalesLine."VAT %" / 100));
-            SalesLine."Shpfy Refund Id" := RefundHeader."Refund Id";
-            SalesLine.Modify();
-        end;
+
+        CreateSalesLinesFromRemainingAmount(RefundHeader, SalesHeader, LineNo);
     end;
 
     local procedure CreateSalesLinesFromRefundLines(var RefundLine: Record "Shpfy Refund Line"; RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var LineNo: Integer)
@@ -364,5 +345,49 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
                 SalesLine."Shpfy Refund Shipping Line Id" := RefundShippingLine."Refund Shipping Line Id";
                 SalesLine.Modify();
             until RefundShippingLine.Next() = 0;
+    end;
+
+    local procedure FillRemainingAmountLineFields(var RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var LineNo: Integer)
+    begin
+        LineNo += 10000;
+        SalesLine.Init();
+        SalesLine.SetHideValidationDialog(true);
+        SalesLine.Validate("Document Type", SalesHeader."Document Type");
+        SalesLine.Validate("Document No.", SalesHeader."No.");
+        SalesLine.Validate("Line No.", LineNo);
+        SalesLine.Insert(true);
+        SalesLine.Validate(Type, "Sales Line Type"::"G/L Account");
+        Shop.TestField("Refund Account");
+        SalesLine.Validate("No.", Shop."Refund Account");
+        SalesLine.Validate(Quantity, 1);
+        SalesLine."Shpfy Refund Id" := RefundHeader."Refund Id";
+    end;
+
+    local procedure CreateSalesLinesFromRemainingAmount(var RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var LineNo: Integer)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesHeader.CalcFields(Amount, "Amount Including VAT");
+
+        case Order."Processed w. Currency Handling" of
+            "Shpfy Currency Handling"::"Shop Currency":
+                if SalesHeader."Amount Including VAT" <> RefundHeader."Total Refunded Amount" then begin
+                    FillRemainingAmountLineFields(RefundHeader, SalesHeader, SalesLine, LineNo);
+                    if SalesHeader."Prices Including VAT" then
+                        SalesLine.Validate("Unit Price", RefundHeader."Total Refunded Amount" - SalesHeader."Amount Including VAT")
+                    else
+                        SalesLine.Validate("Unit Price", (RefundHeader."Total Refunded Amount" - SalesHeader."Amount Including VAT") / (1 + SalesLine."VAT %" / 100));
+                    SalesLine.Modify(false);
+                end;
+            "Shpfy Currency Handling"::"Presentment Currency":
+                if SalesHeader."Amount Including VAT" <> RefundHeader."Pres. Tot. Refunded Amount" then begin
+                    FillRemainingAmountLineFields(RefundHeader, SalesHeader, SalesLine, LineNo);
+                    if SalesHeader."Prices Including VAT" then
+                        SalesLine.Validate("Unit Price", RefundHeader."Pres. Tot. Refunded Amount" - SalesHeader."Amount Including VAT")
+                    else
+                        SalesLine.Validate("Unit Price", (RefundHeader."Pres. Tot. Refunded Amount" - SalesHeader."Amount Including VAT") / (1 + SalesLine."VAT %" / 100));
+                    SalesLine.Modify(false);
+                end;
+        end;
     end;
 }
