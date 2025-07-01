@@ -527,6 +527,7 @@ page 30101 "Shpfy Shop Card"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies which currency is used in Shopify orders processing.';
+                    Importance = Additional;
                 }
             }
             group(ReturnsAndRefunds)

@@ -212,11 +212,22 @@ report 30118 "Shpfy Suggest Payments"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        OrderHeader: Record "Shpfy Order Header";
         RefundHeader: Record "Shpfy Refund Header";
         AmountToApply: Decimal;
         Applied: Boolean;
     begin
-        AmountToApply := OrderTransaction.Amount;
+        OrderHeader.Get(OrderTransaction."Shopify Order Id");
+        if not OrderHeader.IsProcessed() then
+            exit;
+
+        case
+            OrderHeader."Processed w. Currency Handling" of
+            "Shpfy Currency Handling"::"Shop Currency":
+                AmountToApply := OrderTransaction.Amount;
+            "Shpfy Currency Handling"::"Presentment Currency":
+                AmountToApply := OrderTransaction."Presentment Amount";
+        end;
 
         case OrderTransaction.Type of
             OrderTransaction.Type::Capture, OrderTransaction.Type::Sale:

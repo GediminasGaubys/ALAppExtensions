@@ -58,12 +58,13 @@ page 30134 "Shpfy Transactions"
                     ObsoleteTag = '25.0';
                 }
 #endif
-                field(Amount; Rec.Amount)
+                field(Amount; this.Amount)
                 {
                     ApplicationArea = All;
+                    Caption = 'Amount';
                     ToolTip = 'Specifies the amount of money included in the transaction.';
                 }
-                field(Currency; Rec.Currency)
+                field(Currency; this.CurrencyCode)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the currency of the transaction.';
@@ -211,5 +212,55 @@ page 30134 "Shpfy Transactions"
     }
 
     var
+        CurrencyCode: Code[20];
+        Amount: Decimal;
         IgnorePostedTransactionsLbl: Label 'You have selected posted Shopify transactions. Do you want to use posted transactions?';
+
+    trigger OnAfterGetRecord()
+    begin
+        this.SetCurrencyCode();
+    end;
+
+    local procedure SetCurrencyCode()
+    var
+        OrderHeader: Record "Shpfy Order Header";
+        Shop: Record "Shpfy Shop";
+    begin
+        if not OrderHeader.Get(Rec."Shopify Order Id") then begin
+            this.CurrencyCode := Rec.Currency;
+            exit;
+        end;
+
+        if not OrderHeader.IsProcessed() then
+            case OrderHeader."Processed w. Currency Handling" of
+                "Shpfy Currency Handling"::"Shop Currency":
+                    begin
+                        this.CurrencyCode := Rec.Currency;
+                        this.Amount := Rec.Amount
+                    end;
+                "Shpfy Currency Handling"::"Presentment Currency":
+                    begin
+                        this.CurrencyCode := Rec."Presentment Currency";
+                        this.Amount := Rec."Presentment Amount";
+                    end;
+            end
+        else
+            if Shop.Get(OrderHeader."Shop Code") then
+                case Shop."Currency Handling" of
+                    "Shpfy Currency Handling"::"Shop Currency":
+                        begin
+                            this.CurrencyCode := OrderHeader."Currency Code";
+                            this.Amount := OrderHeader."Total Amount";
+                        end;
+                    "Shpfy Currency Handling"::"Presentment Currency":
+                        begin
+                            this.CurrencyCode := OrderHeader."Presentment Currency Code";
+                            this.Amount := OrderHeader."Presentment Total Amount";
+                        end;
+                end
+            else begin
+                this.CurrencyCode := Rec.Currency;
+                this.Amount := Rec.Amount;
+            end;
+    end;
 }

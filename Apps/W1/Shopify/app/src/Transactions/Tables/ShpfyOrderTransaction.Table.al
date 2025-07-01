@@ -81,6 +81,18 @@ table 30133 "Shpfy Order Transaction"
             DataClassification = SystemMetadata;
             Editable = false;
         }
+        field(12; "Presentment Currency"; Code[20])
+        {
+            Caption = 'Presentment Currency';
+            DataClassification = SystemMetadata;
+            Editable = false;
+        }
+        field(13; "Presentment Amount"; Decimal)
+        {
+            Caption = 'Presentment Amount';
+            DataClassification = SystemMetadata;
+            Editable = false;
+        }
         field(14; "Gift Card Id"; BigInteger)
         {
             Caption = 'Gift Card Id';
