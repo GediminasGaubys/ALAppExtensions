@@ -38,14 +38,16 @@ page 30128 "Shpfy Order Shipping Charges"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the delivery method in Shopify.';
                 }
-                field(Amount; Rec.Amount)
+                field(Amount; this.Amount)
                 {
                     ApplicationArea = All;
+                    Caption = 'Amount';
                     ToolTip = 'Specifies the shipping cost amount.';
                 }
-                field("Discount Amount"; Rec."Discount Amount")
+                field("Discount Amount"; this.DiscountAmount)
                 {
                     ApplicationArea = All;
+                    Caption = 'Discount Amount';
                     ToolTip = 'Specifies the shipping cost discount amount.';
                 }
                 field(Source; Rec.Source)
@@ -95,5 +97,71 @@ page 30128 "Shpfy Order Shipping Charges"
             }
         }
     }
+
+    var
+        Amount: Decimal;
+        DiscountAmount: Decimal;
+
+    trigger OnAfterGetRecord()
+    begin
+        this.SetCurrencyCode();
+    end;
+
+    local procedure SetCurrencyCode()
+    var
+        OrderHeader: Record "Shpfy Order Header";
+        Shop: Record "Shpfy Shop";
+    begin
+        if not OrderHeader.Get(Rec."Shopify Order Id") then begin
+            this.SetDefaultAmounts();
+            exit;
+        end;
+
+        if not OrderHeader.IsProcessed() then
+            this.SetOrderCurrencyHandling(OrderHeader)
+        else
+            if Shop.Get(OrderHeader."Shop Code") then
+                this.SetShopCurrencyHandling(Shop)
+            else
+                this.SetDefaultAmounts();
+    end;
+
+    local procedure SetDefaultAmounts()
+    begin
+        this.DiscountAmount := Rec."Discount Amount";
+        this.Amount := Rec.Amount;
+    end;
+
+    local procedure SetShopCurrencyAmounts()
+    begin
+        Rec."Discount Amount" := Rec."Discount Amount";
+        this.Amount := Rec.Amount;
+    end;
+
+    local procedure SetPresentmentCurrencyAmounts()
+    begin
+        this.DiscountAmount := Rec."Presentment Discount Amount";
+        this.Amount := Rec."Presentment Amount";
+    end;
+
+    local procedure SetOrderCurrencyHandling(var OrderHeader: Record "Shpfy Order Header")
+    begin
+        case OrderHeader."Processed w. Currency Handling" of
+            "Shpfy Currency Handling"::"Shop Currency":
+                this.SetShopCurrencyAmounts();
+            "Shpfy Currency Handling"::"Presentment Currency":
+                this.SetPresentmentCurrencyAmounts();
+        end;
+    end;
+
+    local procedure SetShopCurrencyHandling(var Shop: Record "Shpfy Shop")
+    begin
+        case Shop."Currency Handling" of
+            "Shpfy Currency Handling"::"Shop Currency":
+                this.SetShopCurrencyAmounts();
+            "Shpfy Currency Handling"::"Presentment Currency":
+                this.SetPresentmentCurrencyAmounts();
+        end;
+    end;
 }
 

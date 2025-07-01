@@ -303,8 +303,18 @@ codeunit 30166 "Shpfy Process Order"
                     SalesLine.Validate("Shipping Agent Service Code", ShipmentMethodMapping."Shipping Agent Service Code");
                     SalesLine.Validate(Quantity, 1);
                     SalesLine.Validate(Description, OrderShippingCharges.Title);
-                    SalesLine.Validate("Unit Price", OrderShippingCharges.Amount);
-                    SalesLine.Validate("Line Discount Amount", OrderShippingCharges."Discount Amount");
+                    case this.ShopifyShop."Currency Handling" of
+                        Enum::"Shpfy Currency Handling"::"Shop Currency":
+                            begin
+                                SalesLine.Validate("Unit Price", OrderShippingCharges.Amount);
+                                SalesLine.Validate("Line Discount Amount", OrderShippingCharges."Discount Amount");
+                            end;
+                        Enum::"Shpfy Currency Handling"::"Presentment Currency":
+                            begin
+                                SalesLine.Validate("Unit Price", OrderShippingCharges."Presentment Amount");
+                                SalesLine.Validate("Line Discount Amount", OrderShippingCharges."Presentment Discount Amount");
+                            end;
+                    end;
                     SalesLine."Shpfy Order No." := ShopifyOrderHeader."Shopify Order No.";
                     SalesLine.Modify(true);
 

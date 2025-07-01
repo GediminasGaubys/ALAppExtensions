@@ -227,40 +227,54 @@ page 30134 "Shpfy Transactions"
         Shop: Record "Shpfy Shop";
     begin
         if not OrderHeader.Get(Rec."Shopify Order Id") then begin
-            this.CurrencyCode := Rec.Currency;
+            this.SetDefaultCurrencyAndAmount();
             exit;
         end;
 
         if not OrderHeader.IsProcessed() then
-            case OrderHeader."Processed w. Currency Handling" of
-                "Shpfy Currency Handling"::"Shop Currency":
-                    begin
-                        this.CurrencyCode := Rec.Currency;
-                        this.Amount := Rec.Amount
-                    end;
-                "Shpfy Currency Handling"::"Presentment Currency":
-                    begin
-                        this.CurrencyCode := Rec."Presentment Currency";
-                        this.Amount := Rec."Presentment Amount";
-                    end;
-            end
+            this.SetOrderCurrencyHandling(OrderHeader)
         else
             if Shop.Get(OrderHeader."Shop Code") then
-                case Shop."Currency Handling" of
-                    "Shpfy Currency Handling"::"Shop Currency":
-                        begin
-                            this.CurrencyCode := OrderHeader."Currency Code";
-                            this.Amount := OrderHeader."Total Amount";
-                        end;
-                    "Shpfy Currency Handling"::"Presentment Currency":
-                        begin
-                            this.CurrencyCode := OrderHeader."Presentment Currency Code";
-                            this.Amount := OrderHeader."Presentment Total Amount";
-                        end;
-                end
-            else begin
-                this.CurrencyCode := Rec.Currency;
-                this.Amount := Rec.Amount;
-            end;
+                this.SetShopCurrencyHandling(Shop)
+            else
+                this.SetDefaultCurrencyAndAmount();
+    end;
+
+    local procedure SetShopCurrency()
+    begin
+        this.CurrencyCode := Rec.Currency;
+        this.Amount := Rec.Amount;
+    end;
+
+    local procedure SetPresentmentCurrency()
+    begin
+        this.CurrencyCode := Rec."Presentment Currency";
+        this.Amount := Rec."Presentment Amount";
+    end;
+
+    local procedure SetOrderCurrencyHandling(var OrderHeader: Record "Shpfy Order Header")
+    begin
+        case OrderHeader."Processed w. Currency Handling" of
+            "Shpfy Currency Handling"::"Shop Currency":
+                this.SetShopCurrency();
+            "Shpfy Currency Handling"::"Presentment Currency":
+                this.SetPresentmentCurrency();
+        end;
+    end;
+
+    local procedure SetShopCurrencyHandling(var Shop: Record "Shpfy Shop")
+    begin
+        case Shop."Currency Handling" of
+            "Shpfy Currency Handling"::"Shop Currency":
+                this.SetShopCurrency();
+            "Shpfy Currency Handling"::"Presentment Currency":
+                this.SetPresentmentCurrency();
+        end;
+    end;
+
+    local procedure SetDefaultCurrencyAndAmount()
+    begin
+        this.CurrencyCode := Rec.Currency;
+        this.Amount := Rec.Amount;
     end;
 }
