@@ -528,6 +528,7 @@ table 30118 "Shpfy Order Header"
         field(111; "Presentment VAT Amount"; Decimal)
         {
             Caption = 'Presentment VAT Amount';
+            ToolTip = 'Specifies the sum of the line amounts on all lines in the document minus any discount amounts plus the shipping costs.';
             DataClassification = SystemMetadata;
         }
         field(112; "Presentment Discount Amount"; Decimal)
@@ -808,6 +809,7 @@ table 30118 "Shpfy Order Header"
             DataClassification = SystemMetadata;
             Editable = false;
         }
+        // field(1051; "Shop Currency Handling"; Enum )
     }
     keys
     {
