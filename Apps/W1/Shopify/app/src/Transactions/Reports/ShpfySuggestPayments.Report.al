@@ -222,7 +222,7 @@ report 30118 "Shpfy Suggest Payments"
             exit;
 
         case
-            OrderHeader."Processed w. Currency Handling" of
+            OrderHeader."Processed Currency Handling" of
             "Shpfy Currency Handling"::"Shop Currency":
                 AmountToApply := OrderTransaction.Amount;
             "Shpfy Currency Handling"::"Presentment Currency":

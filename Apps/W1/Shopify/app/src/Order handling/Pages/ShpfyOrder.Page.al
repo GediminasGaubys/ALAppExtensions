@@ -201,6 +201,19 @@ page 30113 "Shpfy Order"
                     Editable = false;
                     ToolTip = 'Specifies whether a sales order has been created for the Shopify Order.';
                 }
+                group(ProcessedCurrHanndling)
+                {
+                    ShowCaption = false;
+                    Visible = Rec.Processed;
+
+                    field(ProcessedCurrencyHandling; Rec."Processed Currency Handling")
+                    {
+                        Caption = 'Processed Currency Handling';
+                        Importance = Additional;
+                        Editable = false;
+                        ToolTip = 'Specifies how the currency was handled when processing the order.';
+                    }
+                }
                 field(FinancialStatus; Rec."Financial Status")
                 {
                     Editable = false;
@@ -942,7 +955,7 @@ page 30113 "Shpfy Order"
 
     local procedure SetOrderCurrencyHandling()
     begin
-        case Rec."Processed w. Currency Handling" of
+        case Rec."Processed Currency Handling" of
             "Shpfy Currency Handling"::"Shop Currency":
                 this.PresentmentVisible := false;
             "Shpfy Currency Handling"::"Presentment Currency":

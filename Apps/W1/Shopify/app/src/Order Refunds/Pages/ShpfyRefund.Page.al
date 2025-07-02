@@ -228,7 +228,7 @@ page 30145 "Shpfy Refund"
 
     local procedure SetOrderCurrencyHandling(OrderHeader: Record "Shpfy Order Header")
     begin
-        case OrderHeader."Processed w. Currency Handling" of
+        case OrderHeader."Processed Currency Handling" of
             "Shpfy Currency Handling"::"Shop Currency":
                 this.PresentmentCurrencyVisible := false;
             "Shpfy Currency Handling"::"Presentment Currency":

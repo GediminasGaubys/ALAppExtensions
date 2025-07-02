@@ -803,13 +803,12 @@ table 30118 "Shpfy Order Header"
             DataClassification = CustomerContent;
             Caption = 'Payment Terms Name';
         }
-        field(1050; "Processed w. Currency Handling"; Enum "Shpfy Currency Handling")
+        field(1050; "Processed Currency Handling"; Enum "Shpfy Currency Handling")
         {
-            Caption = 'Processed w. Currency Handling';
+            Caption = 'Processed Currency Handling';
             DataClassification = SystemMetadata;
             Editable = false;
         }
-        // field(1051; "Shop Currency Handling"; Enum )
     }
     keys
     {

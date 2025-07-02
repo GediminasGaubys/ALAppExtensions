@@ -60,7 +60,7 @@ codeunit 30167 "Shpfy Process Orders"
                 ShopifyOrderHeader.Processed := true;
                 if not this.Shop.Get(this.Shop.Code) then
                     this.Shop.Get(ShopifyOrderHeader."Shop Code");
-                ShopifyOrderHeader."Processed w. Currency Handling" := this.Shop."Currency Handling";
+                ShopifyOrderHeader."Processed Currency Handling" := this.Shop."Currency Handling";
             end;
             ShopifyOrderHeader.Modify(true);
             Commit();

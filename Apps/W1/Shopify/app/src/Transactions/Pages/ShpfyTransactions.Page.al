@@ -254,7 +254,7 @@ page 30134 "Shpfy Transactions"
 
     local procedure SetOrderCurrencyHandling(var OrderHeader: Record "Shpfy Order Header")
     begin
-        case OrderHeader."Processed w. Currency Handling" of
+        case OrderHeader."Processed Currency Handling" of
             "Shpfy Currency Handling"::"Shop Currency":
                 this.SetShopCurrency();
             "Shpfy Currency Handling"::"Presentment Currency":
