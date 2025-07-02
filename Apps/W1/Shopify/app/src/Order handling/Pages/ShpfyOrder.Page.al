@@ -933,25 +933,39 @@ page 30113 "Shpfy Order"
     end;
 
     local procedure SetCurrencyAndAmounts()
+    begin
+        if Rec.Processed then
+            this.SetOrderCurrencyHandling()
+        else
+            this.SetShopCurrencyHandling();
+    end;
+
+    local procedure SetOrderCurrencyHandling()
+    begin
+        case Rec."Processed w. Currency Handling" of
+            "Shpfy Currency Handling"::"Shop Currency":
+                this.PresentmentVisible := false;
+            "Shpfy Currency Handling"::"Presentment Currency":
+                begin
+                    this.PresentmentVisible := true;
+                    CurrPage.ShopifyOrderLines.Page.SetShowPresentmentCurrency(true);
+                end;
+        end;
+    end;
+
+    local procedure SetShopCurrencyHandling()
     var
         Shop: Record "Shpfy Shop";
     begin
-        if not Rec.Processed then
-            case Shop."Currency Handling" of
-                "Shpfy Currency Handling"::"Shop Currency":
-                    this.PresentmentVisible := false;
-                "Shpfy Currency Handling"::"Presentment Currency":
+        Shop.Get(Rec."Shop Code");
+        case Shop."Currency Handling" of
+            "Shpfy Currency Handling"::"Shop Currency":
+                this.PresentmentVisible := false;
+            "Shpfy Currency Handling"::"Presentment Currency":
+                begin
                     this.PresentmentVisible := true;
-            end
-        else begin
-            Shop.Get(Rec."Shop Code");
-
-            case Rec."Processed w. Currency Handling" of
-                "Shpfy Currency Handling"::"Shop Currency":
-                    this.PresentmentVisible := false;
-                "Shpfy Currency Handling"::"Presentment Currency":
-                    this.PresentmentVisible := true;
-            end;
+                    CurrPage.ShopifyOrderLines.Page.SetShowPresentmentCurrency(true);
+                end;
         end;
     end;
 }

@@ -38,17 +38,31 @@ page 30128 "Shpfy Order Shipping Charges"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the delivery method in Shopify.';
                 }
-                field(Amount; this.Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = All;
                     Caption = 'Amount';
                     ToolTip = 'Specifies the shipping cost amount.';
                 }
-                field("Discount Amount"; this.DiscountAmount)
+                field(PresentmentAmount; Rec."Presentment Amount")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Presentment Amount';
+                    ToolTip = 'Specifies the shipping cost amount in presentment currency.';
+                    Visible = this.PresentmentCurrencyVisible;
+                }
+                field("Discount Amount"; Rec."Discount Amount")
                 {
                     ApplicationArea = All;
                     Caption = 'Discount Amount';
                     ToolTip = 'Specifies the shipping cost discount amount.';
+                }
+                field("Presentment Discount Amount"; Rec."Presentment Discount Amount")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Presentment Discount Amount';
+                    ToolTip = 'Specifies the shipping cost discount amount in presentment currency.';
+                    Visible = this.PresentmentCurrencyVisible;
                 }
                 field(Source; Rec.Source)
                 {
@@ -99,68 +113,45 @@ page 30128 "Shpfy Order Shipping Charges"
     }
 
     var
-        Amount: Decimal;
-        DiscountAmount: Decimal;
+        PresentmentCurrencyVisible: Boolean;
 
     trigger OnAfterGetRecord()
     begin
-        this.SetCurrencyCode();
+        this.SetShowPresentmentCurrencyCode();
     end;
 
-    local procedure SetCurrencyCode()
+    local procedure SetShowPresentmentCurrencyCode()
     var
         OrderHeader: Record "Shpfy Order Header";
         Shop: Record "Shpfy Shop";
     begin
-        if not OrderHeader.Get(Rec."Shopify Order Id") then begin
-            this.SetDefaultAmounts();
+        if not OrderHeader.Get(Rec."Shopify Order Id") then
             exit;
-        end;
 
         if not OrderHeader.IsProcessed() then
             this.SetOrderCurrencyHandling(OrderHeader)
         else
             if Shop.Get(OrderHeader."Shop Code") then
                 this.SetShopCurrencyHandling(Shop)
-            else
-                this.SetDefaultAmounts();
     end;
 
-    local procedure SetDefaultAmounts()
-    begin
-        this.DiscountAmount := Rec."Discount Amount";
-        this.Amount := Rec.Amount;
-    end;
-
-    local procedure SetShopCurrencyAmounts()
-    begin
-        Rec."Discount Amount" := Rec."Discount Amount";
-        this.Amount := Rec.Amount;
-    end;
-
-    local procedure SetPresentmentCurrencyAmounts()
-    begin
-        this.DiscountAmount := Rec."Presentment Discount Amount";
-        this.Amount := Rec."Presentment Amount";
-    end;
-
-    local procedure SetOrderCurrencyHandling(var OrderHeader: Record "Shpfy Order Header")
+    local procedure SetOrderCurrencyHandling(OrderHeader: Record "Shpfy Order Header")
     begin
         case OrderHeader."Processed w. Currency Handling" of
             "Shpfy Currency Handling"::"Shop Currency":
-                this.SetShopCurrencyAmounts();
+                this.PresentmentCurrencyVisible := false;
             "Shpfy Currency Handling"::"Presentment Currency":
-                this.SetPresentmentCurrencyAmounts();
+                this.PresentmentCurrencyVisible := true;
         end;
     end;
 
-    local procedure SetShopCurrencyHandling(var Shop: Record "Shpfy Shop")
+    local procedure SetShopCurrencyHandling(Shop: Record "Shpfy Shop")
     begin
         case Shop."Currency Handling" of
             "Shpfy Currency Handling"::"Shop Currency":
-                this.SetShopCurrencyAmounts();
+                this.PresentmentCurrencyVisible := false;
             "Shpfy Currency Handling"::"Presentment Currency":
-                this.SetPresentmentCurrencyAmounts();
+                this.PresentmentCurrencyVisible := true;
         end;
     end;
 }

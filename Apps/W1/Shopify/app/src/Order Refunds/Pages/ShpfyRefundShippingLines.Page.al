@@ -23,10 +23,22 @@ page 30169 "Shpfy Refund Shipping Lines"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the subtotal price of a refund shipping line.';
                 }
+                field("Presentment Subtotal Amount"; Rec."Presentment Subtotal Amount")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the subtotal price of a refund shipping line in the presentment currency.';
+                    Visible = this.PresentmentCurrencyVisible;
+                }
                 field("Tax Amount"; Rec."Tax Amount")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the total tax amount of a refund shipping line.';
+                }
+                field("Presentment Tax Amount"; Rec."Presentment Tax Amount")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the total tax amount of a refund shipping line in the presentment currency.';
+                    Visible = this.PresentmentCurrencyVisible;
                 }
             }
         }
@@ -59,4 +71,51 @@ page 30169 "Shpfy Refund Shipping Lines"
             actionref(PromotedRetrievedShopifyData; RetrievedShopifyData) { }
         }
     }
+
+    var
+        PresentmentCurrencyVisible: Boolean;
+
+    trigger OnAfterGetRecord()
+    begin
+        this.SetShowPresentmentCurrencyCode();
+    end;
+
+    local procedure SetShowPresentmentCurrencyCode()
+    var
+        OrderHeader: Record "Shpfy Order Header";
+        RefundHeader: Record "Shpfy Refund Header";
+        Shop: Record "Shpfy Shop";
+    begin
+        if not RefundHeader.Get(Rec."Refund Id") then
+            exit;
+
+        if not OrderHeader.Get(RefundHeader."Order Id") then
+            exit;
+
+        if not OrderHeader.IsProcessed() then
+            this.SetOrderCurrencyHandling(OrderHeader)
+        else
+            if Shop.Get(OrderHeader."Shop Code") then
+                this.SetShopCurrencyHandling(Shop)
+    end;
+
+    local procedure SetOrderCurrencyHandling(OrderHeader: Record "Shpfy Order Header")
+    begin
+        case OrderHeader."Processed w. Currency Handling" of
+            "Shpfy Currency Handling"::"Shop Currency":
+                this.PresentmentCurrencyVisible := false;
+            "Shpfy Currency Handling"::"Presentment Currency":
+                this.PresentmentCurrencyVisible := true;
+        end;
+    end;
+
+    local procedure SetShopCurrencyHandling(Shop: Record "Shpfy Shop")
+    begin
+        case Shop."Currency Handling" of
+            "Shpfy Currency Handling"::"Shop Currency":
+                this.PresentmentCurrencyVisible := false;
+            "Shpfy Currency Handling"::"Presentment Currency":
+                this.PresentmentCurrencyVisible := true;
+        end;
+    end;
 }

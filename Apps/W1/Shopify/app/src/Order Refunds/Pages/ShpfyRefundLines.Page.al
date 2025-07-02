@@ -33,31 +33,55 @@ page 30146 "Shpfy Refund Lines"
                     ApplicationArea = All;
                     ToolTip = 'The quantity of a refunded line item.';
                 }
-                field(Amount; this.Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = All;
-                    Caption = 'Amount';
-                    ToolTip = 'The price of a refunded line item.';
+                    ToolTip = 'Specifies the price of a refunded line item.';
+                }
+                field("Presentment Amount"; Rec."Presentment Amount")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the price in presentment currency of a refunded line item.';
+                    Visible = this.PresentmentCurrencyVisible;
                 }
                 field(LineDiscount; (Rec.Quantity * Rec.Amount) - Rec."Subtotal Amount")
                 {
                     ApplicationArea = All;
                     Caption = 'Line Discount';
-                    ToolTip = 'The line discount of a refunded line item.';
+                    ToolTip = 'Specifies the line discount of a refunded line item.';
                     Editable = false;
                     BlankZero = true;
                 }
-                field("Subtotal Amount"; this.SubtotalAmount)
+                field(PresentmentLineDiscount; (Rec.Quantity * Rec."Presentment Amount") - Rec."Presentment Subtotal Amount")
                 {
                     ApplicationArea = All;
-                    Caption = 'Subtotal Amount';
-                    ToolTip = 'The subtotal price of a refunded line item.';
+                    Caption = 'Presentment Line Discount';
+                    ToolTip = 'Specifies the line discount in presentment currency of a refunded line item.';
+                    Editable = false;
+                    BlankZero = true;
+                    Visible = this.PresentmentCurrencyVisible;
                 }
-                field("Total Tax Amount"; this.TotalTaxAmount)
+                field("Subtotal Amount"; Rec."Subtotal Amount")
                 {
                     ApplicationArea = All;
-                    Caption = 'Total Tax Amount';
-                    ToolTip = 'The total tax charged on a refunded line item.';
+                    ToolTip = 'Specifies the subtotal price of a refunded line item.';
+                }
+                field("Presentment Subtotal Amount"; Rec."Presentment Subtotal Amount")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the subtotal price of a refunded line item in presentment currency.';
+                    Visible = this.PresentmentCurrencyVisible;
+                }
+                field("Total Tax Amount"; Rec."Total Tax Amount")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the total tax charged on a refunded line item.';
+                }
+                field("Presentment Total Tax Amount"; Rec."Presentment Total Tax Amount")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the total tax charged on a refunded line item in presentment currencty.';
+                    Visible = this.PresentmentCurrencyVisible;
                 }
                 field("Restock Type"; Rec."Restock Type")
                 {
@@ -97,34 +121,11 @@ page 30146 "Shpfy Refund Lines"
         }
     }
     var
-        Amount, SubtotalAmount : Decimal;
-        TotalTaxAmount: Decimal;
-        ShowPresentmentCurrency: Boolean;
+        PresentmentCurrencyVisible: Boolean;
 
-    trigger OnAfterGetCurrRecord()
-    begin
-        if this.ShowPresentmentCurrency then
-            this.SetPresentmentCurrency()
-        else
-            this.SetShopCurrency();
-    end;
 
     internal procedure SetShowPresentmentCurrency(Show: Boolean)
     begin
-        this.ShowPresentmentCurrency := Show;
-    end;
-
-    local procedure SetPresentmentCurrency()
-    begin
-        this.Amount := Rec."Presentment Amount";
-        this.SubtotalAmount := Rec."Presentment Subtotal Amount";
-        this.TotalTaxAmount := Rec."Presentment Total Tax Amount";
-    end;
-
-    local procedure SetShopCurrency()
-    begin
-        this.Amount := Rec.Amount;
-        this.SubtotalAmount := Rec."Subtotal Amount";
-        this.TotalTaxAmount := Rec."Total Tax Amount";
+        this.PresentmentCurrencyVisible := Show;
     end;
 }

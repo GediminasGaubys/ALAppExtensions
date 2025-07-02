@@ -56,10 +56,9 @@ page 30145 "Shpfy Refund"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the Bill-to Customer Name.';
                 }
-                field("Total Refunded Amount"; this.TotalRefundedAmount)
+                field("Total Refunded Amount"; Rec."Total Refunded Amount")
                 {
                     ApplicationArea = All;
-                    Caption = 'Total Refunded Amount';
                     ToolTip = 'Specifies the total amount across all transactions for the refund.';
                 }
                 field("Return No."; Rec."Return No.")
@@ -72,11 +71,26 @@ page 30145 "Shpfy Refund"
                     ApplicationArea = All;
                     ToolTip = 'Specifies if this refunds already is processed into a Business Central document.';
                 }
-                field(CurrencyCode; this.CurrencyCode)
+                field(CurrencyCode; Rec."Currency Code")
                 {
                     ApplicationArea = All;
-                    Caption = 'Currency Code';
                     ToolTip = 'Specifies the currency code for the refund.';
+                }
+                group(PresentmentCurrency)
+                {
+                    ShowCaption = false;
+                    Visible = this.PresentmentCurrencyVisible;
+
+                    field("Pres. Tot. Refunded Amount"; Rec."Pres. Tot. Refunded Amount")
+                    {
+                        ApplicationArea = All;
+                        ToolTip = 'Specifies the total amount in presentment currency across all transactions for the refund.';
+                    }
+                    field("Presentment Currency Code"; Rec."Presentment Currency Code")
+                    {
+                        ApplicationArea = All;
+                        ToolTip = 'Specifies the presentment currency code for the refund.';
+                    }
                 }
             }
             part(Lines; "Shpfy Refund Lines")
@@ -187,8 +201,7 @@ page 30145 "Shpfy Refund"
     var
         HasNote: Boolean;
         CanCreateDocument: Boolean;
-        TotalRefundedAmount: Decimal;
-        CurrencyCode: Code[10];
+        PresentmentCurrencyVisible: Boolean;
 
     trigger OnAfterGetCurrRecord()
     begin
@@ -198,45 +211,48 @@ page 30145 "Shpfy Refund"
 
     trigger OnAfterGetRecord()
     begin
-        SetCurrencyAndAmounts();
+        this.SetCurrencyAndAmounts();
     end;
 
     local procedure SetCurrencyAndAmounts()
     var
-        Shop: Record "Shpfy Shop";
         OrderHeader: Record "Shpfy Order Header";
     begin
-        Shop.Get(Rec."Shop Code");
         if OrderHeader.Get(Rec."Order Id") then;
 
-        if not OrderHeader.Processed then
-            case Shop."Currency Handling" of
-                "Shpfy Currency Handling"::"Shop Currency":
-                    this.SetShopCurrencyAndAmounts();
-                "Shpfy Currency Handling"::"Presentment Currency":
-                    this.SetPresentmentCurrencyAndAmounts();
-            end
+        if OrderHeader.Processed then
+            this.SetOrderCurrencyHandling(OrderHeader)
         else
-            case OrderHeader."Processed w. Currency Handling" of
-                "Shpfy Currency Handling"::"Shop Currency":
-                    this.SetShopCurrencyAndAmounts();
-                "Shpfy Currency Handling"::"Presentment Currency":
-                    this.SetPresentmentCurrencyAndAmounts();
-            end;
+            this.SetShopCurrencyHandling();
     end;
 
-    local procedure SetShopCurrencyAndAmounts()
+    local procedure SetOrderCurrencyHandling(OrderHeader: Record "Shpfy Order Header")
     begin
-        this.TotalRefundedAmount := Rec."Total Refunded Amount";
-        this.CurrencyCode := Rec."Currency Code";
-        CurrPage.Lines.Page.SetShowPresentmentCurrency(false);
+        case OrderHeader."Processed w. Currency Handling" of
+            "Shpfy Currency Handling"::"Shop Currency":
+                this.PresentmentCurrencyVisible := false;
+            "Shpfy Currency Handling"::"Presentment Currency":
+                begin
+                    this.PresentmentCurrencyVisible := true;
+                    CurrPage.Lines.Page.SetShowPresentmentCurrency(true);
+                end;
+        end;
     end;
 
-    local procedure SetPresentmentCurrencyAndAmounts()
+    local procedure SetShopCurrencyHandling()
+    var
+        Shop: Record "Shpfy Shop";
     begin
-        this.TotalRefundedAmount := Rec."Pres. Tot. Refunded Amount";
-        this.CurrencyCode := Rec."Presentment Currency Code";
-        CurrPage.Lines.Page.SetShowPresentmentCurrency(true);
-    end;
+        Shop.Get(Rec."Shop Code");
 
+        case Shop."Currency Handling" of
+            "Shpfy Currency Handling"::"Shop Currency":
+                this.PresentmentCurrencyVisible := false;
+            "Shpfy Currency Handling"::"Presentment Currency":
+                begin
+                    this.PresentmentCurrencyVisible := true;
+                    CurrPage.Lines.Page.SetShowPresentmentCurrency(true);
+                end;
+        end;
+    end;
 }

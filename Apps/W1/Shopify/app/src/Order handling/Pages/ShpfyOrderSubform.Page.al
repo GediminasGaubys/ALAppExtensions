@@ -66,19 +66,30 @@ page 30122 "Shpfy Order Subform"
                     Editable = false;
                     ToolTip = 'Specifies how many units are being sold.';
                 }
-                field(UnitPrice; this.UnitPrice)
+                field(UnitPrice; Rec."Unit Price")
                 {
                     ApplicationArea = All;
-                    Caption = 'Unit Price';
                     Editable = false;
                     ToolTip = 'Specifies the prices for one unit on the line.';
                 }
-                field(DiscountAmount; this.DiscountAmount)
+                field("Presentment Unit Price"; Rec."Presentment Unit Price")
                 {
                     ApplicationArea = All;
-                    Caption = 'Discount Amount';
+                    Editable = false;
+                    ToolTip = 'Specifies the prices in presentment currrency for one unit on the line.';
+                    Visible = this.PresentmentCurrencyVisible;
+                }
+                field(DiscountAmount; Rec."Discount Amount")
+                {
+                    ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
+                }
+                field("Presentment Discount Amount"; Rec."Presentment Discount Amount")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the discount amount in presentment currrency that is granted for the item on the line.';
                 }
                 field(FullfillableQuantity; Rec."Fulfillable Quantity")
                 {
@@ -115,32 +126,10 @@ page 30122 "Shpfy Order Subform"
     }
 
     var
-        UnitPrice: Decimal;
-        DiscountAmount: Decimal;
-        ShowPresentmentCurrency: Boolean;
-
-    trigger OnAfterGetCurrRecord()
-    begin
-        if this.ShowPresentmentCurrency then
-            this.GetPresentmentCurrencyAmts()
-        else
-            this.GetShopCurrencyAmts();
-    end;
-
-    local procedure GetPresentmentCurrencyAmts()
-    begin
-        this.UnitPrice := Rec."Presentment Unit Price";
-        this.DiscountAmount := Rec."Presentment Discount Amount";
-    end;
-
-    local procedure GetShopCurrencyAmts()
-    begin
-        this.UnitPrice := Rec."Unit Price";
-        this.DiscountAmount := Rec."Discount Amount";
-    end;
+        PresentmentCurrencyVisible: Boolean;
 
     internal procedure SetShowPresentmentCurrency(Show: Boolean)
     begin
-        this.ShowPresentmentCurrency := Show;
+        this.PresentmentCurrencyVisible := Show;
     end;
 }
