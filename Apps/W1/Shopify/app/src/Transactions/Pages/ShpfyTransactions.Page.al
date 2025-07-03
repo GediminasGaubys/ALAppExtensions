@@ -58,16 +58,28 @@ page 30134 "Shpfy Transactions"
                     ObsoleteTag = '25.0';
                 }
 #endif
-                field(Amount; this.Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = All;
                     Caption = 'Amount';
                     ToolTip = 'Specifies the amount of money included in the transaction.';
                 }
-                field(Currency; this.CurrencyCode)
+                field(Currency; Rec.Currency)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the currency of the transaction.';
+                }
+                field("Presentment Amount"; Rec."Presentment Amount")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the amount of money included in the transaction in the presentment currency.';
+                    Visible = this.ShowPresentmentCurrency;
+                }
+                field("Presentment Currency"; Rec."Presentment Currency")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the currency of the transaction in the presentment currency.';
+                    Visible = this.ShowPresentmentCurrency;
                 }
                 field(Test; Rec.Test)
                 {
@@ -212,53 +224,36 @@ page 30134 "Shpfy Transactions"
     }
 
     var
-        CurrencyCode: Code[20];
-        Amount: Decimal;
+        ShowPresentmentCurrency: Boolean;
         IgnorePostedTransactionsLbl: Label 'You have selected posted Shopify transactions. Do you want to use posted transactions?';
 
     trigger OnAfterGetRecord()
     begin
-        this.SetCurrencyCode();
+        this.SetShowPresentmentCurrency();
     end;
 
-    local procedure SetCurrencyCode()
+    local procedure SetShowPresentmentCurrency()
     var
         OrderHeader: Record "Shpfy Order Header";
         Shop: Record "Shpfy Shop";
     begin
-        if not OrderHeader.Get(Rec."Shopify Order Id") then begin
-            this.SetDefaultCurrencyAndAmount();
+        if not OrderHeader.Get(Rec."Shopify Order Id") then
             exit;
-        end;
 
         if not OrderHeader.IsProcessed() then
             this.SetOrderCurrencyHandling(OrderHeader)
         else
             if Shop.Get(OrderHeader."Shop Code") then
                 this.SetShopCurrencyHandling(Shop)
-            else
-                this.SetDefaultCurrencyAndAmount();
-    end;
-
-    local procedure SetShopCurrency()
-    begin
-        this.CurrencyCode := Rec.Currency;
-        this.Amount := Rec.Amount;
-    end;
-
-    local procedure SetPresentmentCurrency()
-    begin
-        this.CurrencyCode := Rec."Presentment Currency";
-        this.Amount := Rec."Presentment Amount";
     end;
 
     local procedure SetOrderCurrencyHandling(var OrderHeader: Record "Shpfy Order Header")
     begin
         case OrderHeader."Processed Currency Handling" of
             "Shpfy Currency Handling"::"Shop Currency":
-                this.SetShopCurrency();
+                this.ShowPresentmentCurrency := false;
             "Shpfy Currency Handling"::"Presentment Currency":
-                this.SetPresentmentCurrency();
+                this.ShowPresentmentCurrency := true;
         end;
     end;
 
@@ -266,15 +261,9 @@ page 30134 "Shpfy Transactions"
     begin
         case Shop."Currency Handling" of
             "Shpfy Currency Handling"::"Shop Currency":
-                this.SetShopCurrency();
+                this.ShowPresentmentCurrency := false;
             "Shpfy Currency Handling"::"Presentment Currency":
-                this.SetPresentmentCurrency();
+                this.ShowPresentmentCurrency := true;
         end;
-    end;
-
-    local procedure SetDefaultCurrencyAndAmount()
-    begin
-        this.CurrencyCode := Rec.Currency;
-        this.Amount := Rec.Amount;
     end;
 }

@@ -113,6 +113,37 @@ page 30151 "Shpfy Return"
     trigger OnAfterGetCurrRecord()
     begin
         HasNote := Rec."Decline Note".HasValue();
+
+        this.SetPresentmentCurrencyVisibleOnLines();
+    end;
+
+    local procedure SetPresentmentCurrencyVisibleOnLines()
+    var
+        OrderHeader: Record "Shpfy Order Header";
+        Shop: Record "Shpfy Shop";
+    begin
+        if not OrderHeader.Get(Rec."Order Id") then
+            exit;
+
+        if OrderHeader.IsProcessed() then
+            case OrderHeader."Processed Currency Handling" of
+                "Shpfy Currency Handling"::"Presentment Currency":
+                    CurrPage.Lines.Page.ShowPresentmentCurrency(true);
+                "Shpfy Currency Handling"::"Shop Currency":
+                    CurrPage.Lines.Page.ShowPresentmentCurrency(false);
+            end
+        else
+            if Shop.Get(Rec."Shop Code") then
+                case Shop."Currency Handling" of
+                    "Shpfy Currency Handling"::"Presentment Currency":
+                        CurrPage.Lines.Page.ShowPresentmentCurrency(true);
+                    "Shpfy Currency Handling"::"Shop Currency":
+                        CurrPage.Lines.Page.ShowPresentmentCurrency(false);
+                end
+            else
+                CurrPage.Lines.Page.ShowPresentmentCurrency(false);
+
+
     end;
 
 }
