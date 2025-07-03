@@ -128,7 +128,7 @@ page 30128 "Shpfy Order Shipping Charges"
         if not OrderHeader.Get(Rec."Shopify Order Id") then
             exit;
 
-        if not OrderHeader.IsProcessed() then
+        if OrderHeader.IsProcessed() then
             this.SetOrderCurrencyHandling(OrderHeader)
         else
             if Shop.Get(OrderHeader."Shop Code") then
