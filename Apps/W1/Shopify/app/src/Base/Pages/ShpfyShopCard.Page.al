@@ -526,7 +526,7 @@ page 30101 "Shpfy Shop Card"
                 field("Currency Handling"; Rec."Currency Handling")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies which currency is used in Shopify orders processing.';
+                    ToolTip = 'Specifies which currency is used in Shopify orders processing. Using presentment currency may cause diffrence between amounts in LCY in BC and Shopify after posting documents.';
                     Importance = Additional;
                 }
             }
