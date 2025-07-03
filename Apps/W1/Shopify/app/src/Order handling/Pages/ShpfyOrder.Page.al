@@ -941,45 +941,18 @@ page 30113 "Shpfy Order"
 
     trigger OnAfterGetRecord()
     begin
-        this.SetCurrencyAndAmounts();
+        this.SetPresentmentCurrencyVisibility();
         this.WorkDescription := Rec.GetWorkDescription();
     end;
 
-    local procedure SetCurrencyAndAmounts()
+    local procedure SetPresentmentCurrencyVisibility()
     begin
-        if Rec.Processed then
-            this.SetOrderCurrencyHandling()
+        this.PresentmentVisible := Rec.IsPresentmentCurrencyOrder();
+
+        if this.PresentmentVisible then
+            CurrPage.ShopifyOrderLines.Page.SetShowPresentmentCurrency(true)
         else
-            this.SetShopCurrencyHandling();
-    end;
-
-    local procedure SetOrderCurrencyHandling()
-    begin
-        case Rec."Processed Currency Handling" of
-            "Shpfy Currency Handling"::"Shop Currency":
-                this.PresentmentVisible := false;
-            "Shpfy Currency Handling"::"Presentment Currency":
-                begin
-                    this.PresentmentVisible := true;
-                    CurrPage.ShopifyOrderLines.Page.SetShowPresentmentCurrency(true);
-                end;
-        end;
-    end;
-
-    local procedure SetShopCurrencyHandling()
-    var
-        Shop: Record "Shpfy Shop";
-    begin
-        Shop.Get(Rec."Shop Code");
-        case Shop."Currency Handling" of
-            "Shpfy Currency Handling"::"Shop Currency":
-                this.PresentmentVisible := false;
-            "Shpfy Currency Handling"::"Presentment Currency":
-                begin
-                    this.PresentmentVisible := true;
-                    CurrPage.ShopifyOrderLines.Page.SetShowPresentmentCurrency(true);
-                end;
-        end;
+            CurrPage.ShopifyOrderLines.Page.SetShowPresentmentCurrency(false);
     end;
 }
 

@@ -211,48 +211,19 @@ page 30145 "Shpfy Refund"
 
     trigger OnAfterGetRecord()
     begin
-        this.SetCurrencyAndAmounts();
+        this.SetPresentmentCurrencyVisibility();
     end;
 
-    local procedure SetCurrencyAndAmounts()
+    local procedure SetPresentmentCurrencyVisibility()
     var
         OrderHeader: Record "Shpfy Order Header";
     begin
         if OrderHeader.Get(Rec."Order Id") then;
 
-        if OrderHeader.Processed then
-            this.SetOrderCurrencyHandling(OrderHeader)
+        this.PresentmentCurrencyVisible := OrderHeader.IsPresentmentCurrencyOrder();
+        if this.PresentmentCurrencyVisible then
+            CurrPage.Lines.Page.SetShowPresentmentCurrency(true)
         else
-            this.SetShopCurrencyHandling();
-    end;
-
-    local procedure SetOrderCurrencyHandling(OrderHeader: Record "Shpfy Order Header")
-    begin
-        case OrderHeader."Processed Currency Handling" of
-            "Shpfy Currency Handling"::"Shop Currency":
-                this.PresentmentCurrencyVisible := false;
-            "Shpfy Currency Handling"::"Presentment Currency":
-                begin
-                    this.PresentmentCurrencyVisible := true;
-                    CurrPage.Lines.Page.SetShowPresentmentCurrency(true);
-                end;
-        end;
-    end;
-
-    local procedure SetShopCurrencyHandling()
-    var
-        Shop: Record "Shpfy Shop";
-    begin
-        Shop.Get(Rec."Shop Code");
-
-        case Shop."Currency Handling" of
-            "Shpfy Currency Handling"::"Shop Currency":
-                this.PresentmentCurrencyVisible := false;
-            "Shpfy Currency Handling"::"Presentment Currency":
-                begin
-                    this.PresentmentCurrencyVisible := true;
-                    CurrPage.Lines.Page.SetShowPresentmentCurrency(true);
-                end;
-        end;
+            CurrPage.Lines.Page.SetShowPresentmentCurrency(false);
     end;
 }

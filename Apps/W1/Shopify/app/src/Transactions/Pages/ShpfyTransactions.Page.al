@@ -73,13 +73,13 @@ page 30134 "Shpfy Transactions"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the amount of money included in the transaction in the presentment currency.';
-                    Visible = this.ShowPresentmentCurrency;
+                    Visible = this.PresentmentCurrencyVisible;
                 }
                 field("Presentment Currency"; Rec."Presentment Currency")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the currency of the transaction in the presentment currency.';
-                    Visible = this.ShowPresentmentCurrency;
+                    Visible = this.PresentmentCurrencyVisible;
                 }
                 field(Test; Rec.Test)
                 {
@@ -224,46 +224,21 @@ page 30134 "Shpfy Transactions"
     }
 
     var
-        ShowPresentmentCurrency: Boolean;
+        PresentmentCurrencyVisible: Boolean;
         IgnorePostedTransactionsLbl: Label 'You have selected posted Shopify transactions. Do you want to use posted transactions?';
 
     trigger OnAfterGetRecord()
     begin
-        this.SetShowPresentmentCurrency();
+        this.SetPresentmentCurrencyVisibility();
     end;
 
-    local procedure SetShowPresentmentCurrency()
+    local procedure SetPresentmentCurrencyVisibility()
     var
         OrderHeader: Record "Shpfy Order Header";
-        Shop: Record "Shpfy Shop";
     begin
         if not OrderHeader.Get(Rec."Shopify Order Id") then
             exit;
 
-        if not OrderHeader.IsProcessed() then
-            this.SetOrderCurrencyHandling(OrderHeader)
-        else
-            if Shop.Get(OrderHeader."Shop Code") then
-                this.SetShopCurrencyHandling(Shop)
-    end;
-
-    local procedure SetOrderCurrencyHandling(var OrderHeader: Record "Shpfy Order Header")
-    begin
-        case OrderHeader."Processed Currency Handling" of
-            "Shpfy Currency Handling"::"Shop Currency":
-                this.ShowPresentmentCurrency := false;
-            "Shpfy Currency Handling"::"Presentment Currency":
-                this.ShowPresentmentCurrency := true;
-        end;
-    end;
-
-    local procedure SetShopCurrencyHandling(var Shop: Record "Shpfy Shop")
-    begin
-        case Shop."Currency Handling" of
-            "Shpfy Currency Handling"::"Shop Currency":
-                this.ShowPresentmentCurrency := false;
-            "Shpfy Currency Handling"::"Presentment Currency":
-                this.ShowPresentmentCurrency := true;
-        end;
+        this.PresentmentCurrencyVisible := OrderHeader.IsPresentmentCurrencyOrder();
     end;
 }

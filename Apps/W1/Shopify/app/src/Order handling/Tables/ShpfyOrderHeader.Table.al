@@ -906,4 +906,39 @@ table 30118 "Shpfy Order Header"
         exit(Rec.Processed or not DocLinkToBCDoc.IsEmpty);
     end;
 
+    /// <summary>
+    /// Check if the order is using presentment currency handling.
+    /// This is used to determine if the order should be processed in presentment currency or shop currency.
+    /// </summary>
+    /// <returns>Boolean value. True if oreder was processed using presentment currency or realted shop is using presentment currency before processing.</returns>
+    internal procedure IsPresentmentCurrencyOrder(): Boolean
+    begin
+        if Rec.IsProcessed() then
+            exit(this.IsOrderUsingPresntmentCurrencyHandling())
+        else
+            exit(this.IsShopUsingPresntmentCurrencyHandling());
+    end;
+
+    local procedure IsOrderUsingPresntmentCurrencyHandling(): Boolean
+    begin
+        case Rec."Processed Currency Handling" of
+            "Shpfy Currency Handling"::"Presentment Currency":
+                exit(true);
+            "Shpfy Currency Handling"::"Shop Currency":
+                exit(false);
+        end;
+    end;
+
+    local procedure IsShopUsingPresntmentCurrencyHandling(): Boolean
+    var
+        Shop: Record "Shpfy Shop";
+    begin
+        Shop.Get(Rec."Shop Code");
+        case Shop."Currency Handling" of
+            "Shpfy Currency Handling"::"Presentment Currency":
+                exit(true);
+            "Shpfy Currency Handling"::"Shop Currency":
+                exit(false);
+        end;
+    end;
 }

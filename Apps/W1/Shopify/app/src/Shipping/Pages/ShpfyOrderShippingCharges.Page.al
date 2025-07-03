@@ -117,42 +117,17 @@ page 30128 "Shpfy Order Shipping Charges"
 
     trigger OnAfterGetRecord()
     begin
-        this.SetShowPresentmentCurrencyCode();
+        this.SetShowPresentmentCurrencyVisibility();
     end;
 
-    local procedure SetShowPresentmentCurrencyCode()
+    local procedure SetShowPresentmentCurrencyVisibility()
     var
         OrderHeader: Record "Shpfy Order Header";
-        Shop: Record "Shpfy Shop";
     begin
         if not OrderHeader.Get(Rec."Shopify Order Id") then
             exit;
 
-        if OrderHeader.IsProcessed() then
-            this.SetOrderCurrencyHandling(OrderHeader)
-        else
-            if Shop.Get(OrderHeader."Shop Code") then
-                this.SetShopCurrencyHandling(Shop)
-    end;
-
-    local procedure SetOrderCurrencyHandling(OrderHeader: Record "Shpfy Order Header")
-    begin
-        case OrderHeader."Processed Currency Handling" of
-            "Shpfy Currency Handling"::"Shop Currency":
-                this.PresentmentCurrencyVisible := false;
-            "Shpfy Currency Handling"::"Presentment Currency":
-                this.PresentmentCurrencyVisible := true;
-        end;
-    end;
-
-    local procedure SetShopCurrencyHandling(Shop: Record "Shpfy Shop")
-    begin
-        case Shop."Currency Handling" of
-            "Shpfy Currency Handling"::"Shop Currency":
-                this.PresentmentCurrencyVisible := false;
-            "Shpfy Currency Handling"::"Presentment Currency":
-                this.PresentmentCurrencyVisible := true;
-        end;
+        this.PresentmentCurrencyVisible := OrderHeader.IsPresentmentCurrencyOrder();
     end;
 }
 
