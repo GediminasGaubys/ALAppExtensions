@@ -1,5 +1,6 @@
 namespace Microsoft.Integration.Shopify;
 
+using Microsoft.Finance.Currency;
 using Microsoft.Sales.Document;
 
 codeunit 30246 "Shpfy Create Sales Doc. Refund"
@@ -271,7 +272,6 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
                             "Shpfy Currency Handling"::"Presentment Currency":
                                 SalesLine.Validate("Unit Price", RefundLine."Presentment Subtotal Amount");
                         end;
-                        SalesLine.Validate("Unit Price", RefundLine."Presentment Subtotal Amount");
                         SalesLine."Shpfy Refund Id" := RefundHeader."Refund Id";
                         SalesLine."Shpfy Refund Line Id" := RefundLine."Refund Line Id";
                         SalesLine.Modify();
@@ -312,7 +312,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
                 SalesLine.Validate("Unit Price", ReturnLine."Discounted Total Amount" / ReturnLine.Quantity);
             end;
             SalesLine."Shpfy Refund Id" := RefundHeader."Refund Id";
-            SalesLine.Modify();
+            SalesLine.Modify(false);
             RefundProcessEvents.OnAfterCreateItemSalesLineFromReturnLine(RefundHeader, ReturnLine, SalesHeader, SalesLine);
         until ReturnLine.Next() = 0;
     end;
@@ -374,26 +374,41 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
     local procedure CreateSalesLinesFromRemainingAmount(var RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var LineNo: Integer)
     var
         SalesLine: Record "Sales Line";
+        Currency: Record Currency;
     begin
         SalesHeader.CalcFields(Amount, "Amount Including VAT");
+        Currency.Initialize(SalesHeader."Currency Code");
 
-        case Order."Processed Currency Handling" of
+        case this.Order."Processed Currency Handling" of
             "Shpfy Currency Handling"::"Shop Currency":
                 if SalesHeader."Amount Including VAT" <> RefundHeader."Total Refunded Amount" then begin
                     FillRemainingAmountLineFields(RefundHeader, SalesHeader, SalesLine, LineNo);
                     if SalesHeader."Prices Including VAT" then
                         SalesLine.Validate("Unit Price", RefundHeader."Total Refunded Amount" - SalesHeader."Amount Including VAT")
                     else
-                        SalesLine.Validate("Unit Price", (RefundHeader."Total Refunded Amount" - SalesHeader."Amount Including VAT") / (1 + SalesLine."VAT %" / 100));
+                        SalesLine.Validate(
+                            "Unit Price",
+                            Round(
+                                (RefundHeader."Total Refunded Amount" - SalesHeader."Amount Including VAT") / (1 + SalesLine."VAT %" / 100),
+                                Currency."Invoice Rounding Precision",
+                                Currency.InvoiceRoundingDirection())
+                        );
                     SalesLine.Modify(false);
                 end;
+
             "Shpfy Currency Handling"::"Presentment Currency":
                 if SalesHeader."Amount Including VAT" <> RefundHeader."Pres. Tot. Refunded Amount" then begin
                     FillRemainingAmountLineFields(RefundHeader, SalesHeader, SalesLine, LineNo);
                     if SalesHeader."Prices Including VAT" then
                         SalesLine.Validate("Unit Price", RefundHeader."Pres. Tot. Refunded Amount" - SalesHeader."Amount Including VAT")
                     else
-                        SalesLine.Validate("Unit Price", (RefundHeader."Pres. Tot. Refunded Amount" - SalesHeader."Amount Including VAT") / (1 + SalesLine."VAT %" / 100));
+                        SalesLine.Validate(
+                            "Unit Price",
+                            Round(
+                                (RefundHeader."Pres. Tot. Refunded Amount" - SalesHeader."Amount Including VAT") / (1 + SalesLine."VAT %" / 100),
+                                Currency."Invoice Rounding Precision",
+                                Currency.InvoiceRoundingDirection())
+                        );
                     SalesLine.Modify(false);
                 end;
         end;
