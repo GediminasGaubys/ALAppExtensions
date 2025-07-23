@@ -224,7 +224,7 @@ report 30118 "Shpfy Suggest Payments"
         case
             OrderHeader."Processed Currency Handling" of
             "Shpfy Currency Handling"::"Shop Currency":
-                AmountToApply := OrderTransaction.Amount;
+                AmountToApply := OrderTransaction.Amount + OrderTransaction."Rounding Amount";
             "Shpfy Currency Handling"::"Presentment Currency":
                 AmountToApply := OrderTransaction."Presentment Amount";
         end;
