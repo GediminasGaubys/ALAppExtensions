@@ -164,10 +164,6 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
 
         CreateSalesLinesFromRefundShippingLines(RefundHeader, SalesHeader, LineNo);
 
-
-        // todo handle based on case preentment and non-presentment currency
-        // extract code to function and do separate funtions with todo code
-
         CreateSalesLinesFromRemainingAmount(RefundHeader, SalesHeader, LineNo);
     end;
 
@@ -390,8 +386,8 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
                             "Unit Price",
                             Round(
                                 (RefundHeader."Total Refunded Amount" - SalesHeader."Amount Including VAT") / (1 + SalesLine."VAT %" / 100),
-                                Currency."Invoice Rounding Precision",
-                                Currency.InvoiceRoundingDirection())
+                                Currency."Amount Rounding Precision",
+                                Currency.VATRoundingDirection())
                         );
                     SalesLine.Modify(false);
                 end;
@@ -406,8 +402,8 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
                             "Unit Price",
                             Round(
                                 (RefundHeader."Pres. Tot. Refunded Amount" - SalesHeader."Amount Including VAT") / (1 + SalesLine."VAT %" / 100),
-                                Currency."Invoice Rounding Precision",
-                                Currency.InvoiceRoundingDirection())
+                                Currency."Amount Rounding Precision",
+                                Currency.VATRoundingDirection())
                         );
                     SalesLine.Modify(false);
                 end;
