@@ -69,9 +69,8 @@ codeunit 30228 "Shpfy Refunds API"
         JsonHelper.GetValueIntoField(JRefund, 'totalRefundedSet.shopMoney.amount', RefundHeaderRecordRef, RefundHeader.FieldNo("Total Refunded Amount"));
         JsonHelper.GetValueIntoField(JRefund, 'totalRefundedSet.shopMoney.currencyCode', RefundHeaderRecordRef, RefundHeader.FieldNo("Currency Code"));
         JsonHelper.GetValueIntoField(JRefund, 'totalRefundedSet.presentmentMoney.amount', RefundHeaderRecordRef, RefundHeader.FieldNo("Pres. Tot. Refunded Amount"));
-        JsonHelper.GetValueIntoField(JRefund, 'totalRefundedSet.shopMoney.currencyCode', RefundHeaderRecordRef, RefundHeader.FieldNo("Currency Code"));
         JsonHelper.GetValueIntoField(JRefund, 'totalRefundedSet.presentmentMoney.currencyCode', RefundHeaderRecordRef, RefundHeader.FieldNo("Presentment Currency Code"));
-        RefundHeaderRecordRef.Modify();
+        RefundHeaderRecordRef.Modify(false);
         RefundHeaderRecordRef.SetTable(RefundHeader);
         RefundHeaderRecordRef.Close();
         DataCapture.Add(Database::"Shpfy Refund Header", RefundHeader.SystemId, JResponse);

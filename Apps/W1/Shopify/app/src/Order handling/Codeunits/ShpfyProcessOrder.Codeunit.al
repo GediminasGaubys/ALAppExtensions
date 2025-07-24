@@ -203,7 +203,6 @@ codeunit 30166 "Shpfy Process Order"
         IsHandled: Boolean;
         ShipmentChargeType: Boolean;
         ShopifyOrderNoLbl: Label 'Shopify Order No.: %1', Comment = '%1 = Order No.';
-        CashRoundingLbl: Label 'Cash rounding';
     begin
         BindSubscription(SuppressAsmWarning);
         if ShopifyShop."Shopify Order No. on Doc. Line" then begin
@@ -325,27 +324,16 @@ codeunit 30166 "Shpfy Process Order"
                 OrderEvents.OnAfterCreateShippingCostSalesLine(ShopifyOrderHeader, OrderShippingCharges, SalesHeader, SalesLine);
             until OrderShippingCharges.Next() = 0;
 
-        if ShopifyOrderHeader."Payment Rounding Amount" <> 0 then begin
-            SalesLine.Init();
-            SalesLine.SetHideValidationDialog(true);
-            SalesLine.Validate("Document Type", SalesHeader."Document Type");
-            SalesLine.Validate("Document No.", SalesHeader."No.");
-            SalesLine.Validate("Line No.", GetNextLineNo(SalesHeader));
-            SalesLine.Insert(true);
-
-            SalesLine.Validate(Type, SalesLine.Type::"G/L Account");
-            // SalesLine.Validate("No.", SalesLine.GetCPGInvRoundAcc(SalesHeader)); TODONAT
-            SalesLine.Validate("No.", ShopifyShop."Tip Account");
-            SalesLine.Validate(Quantity, 1);
-            SalesLine.Validate("Unit Price", ShopifyOrderHeader."Payment Rounding Amount");
-            SalesLine.Validate(Description, CashRoundingLbl);
-            SalesLine."Shpfy Order No." := ShopifyOrderHeader."Shopify Order No.";
-            SalesLine.Modify();
+        case this.ShopifyShop."Currency Handling" of
+            "Shpfy Currency Handling"::"Shop Currency":
+                this.CreateRoundingLine(SalesHeader, ShopifyOrderHeader, ShopifyOrderHeader."Payment Rounding Amount");
+            "Shpfy Currency Handling"::"Presentment Currency":
+                this.CreateRoundingLine(SalesHeader, ShopifyOrderHeader, ShopifyOrderHeader."Pres. Payment Rounding Amount");
         end;
     end;
 
     local procedure AssignItemCharges(SalesHeader: Record "Sales Header";
-SalesLine: Record "Sales Line")
+    SalesLine: Record "Sales Line")
     var
         AssignItemChargeSales: Codeunit "Item Charge Assgnt. (Sales)";
         ItemChargeAssgntLineAmt: Decimal;
@@ -468,6 +456,30 @@ SalesLine: Record "Sales Line")
                 exit(10000 + SalesLine."Line No.");
     end;
 
+    local procedure CreateRoundingLine(var SalesHeader: Record "Sales Header"; var ShopifyOrderHeader: Record "Shpfy Order Header"; PaymentRoundingAmount: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+        CashRoundingLbl: Label 'Cash rounding';
+    begin
+        if PaymentRoundingAmount <> 0 then begin
+            SalesLine.Init();
+            SalesLine.SetHideValidationDialog(true);
+            SalesLine.Validate("Document Type", SalesHeader."Document Type");
+            SalesLine.Validate("Document No.", SalesHeader."No.");
+            SalesLine.Validate("Line No.", this.GetNextLineNo(SalesHeader));
+            SalesLine.Insert(true);
+
+            SalesLine.Validate(Type, SalesLine.Type::"G/L Account");
+            // SalesLine.Validate("No.", SalesLine.GetCPGInvRoundAcc(SalesHeader)); TODONAT
+            SalesLine.Validate("No.", this.ShopifyShop."Tip Account");
+            SalesLine.Validate(Quantity, 1);
+            SalesLine.Validate("Unit Price", PaymentRoundingAmount);
+            SalesLine.Validate(Description, CashRoundingLbl);
+            SalesLine."Shpfy Order No." := ShopifyOrderHeader."Shopify Order No.";
+            SalesLine.Modify(false);
+        end;
+    end;
+
     /// <summary> 
     /// Description for CleanUpLastCreatedDocument.
     /// </summary>
@@ -481,7 +493,7 @@ SalesLine: Record "Sales Line")
 
     internal procedure SetShopifyShop(Shop: Record "Shpfy Shop")
     begin
-        ShopifyShop := Shop;
+        this.ShopifyShop := Shop;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnInsertShipmentHeaderOnAfterTransferfieldsToSalesShptHeader', '', false, false)]

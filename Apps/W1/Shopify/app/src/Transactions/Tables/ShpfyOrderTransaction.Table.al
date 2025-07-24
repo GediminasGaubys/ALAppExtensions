@@ -181,6 +181,18 @@ table 30133 "Shpfy Order Transaction"
             DataClassification = SystemMetadata;
             Editable = false;
         }
+        field(26; "Presentment Rounding Amount"; Decimal)
+        {
+            Caption = 'Presentment Rounding Amount';
+            DataClassification = SystemMetadata;
+            Editable = false;
+        }
+        field(27; "Presentment Rounding Currency"; Code[20])
+        {
+            Caption = 'Presentment Rounding Currency';
+            DataClassification = SystemMetadata;
+            Editable = false;
+        }
         field(101; "Sales Document No."; code[20])
         {
             Caption = 'Sales Document No.';

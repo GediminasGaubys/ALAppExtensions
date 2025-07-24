@@ -148,7 +148,6 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
         RefundLine: Record "Shpfy Refund Line";
         ReturnLine: Record "Shpfy Return Line";
         LineNo: Integer;
-        RoundingAmount: Decimal;
     begin
         RefundLine.SetRange("Refund Id", RefundHeader."Refund Id");
         RefundLine.SetAutoCalcFields("Item No.", "Variant Code", Description, "Gift Card");
@@ -417,11 +416,26 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
     local procedure CreateRoundingLine(RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var LineNo: Integer): Decimal
     var
         OrderHeader: Record "Shpfy Order Header";
+    begin
+        OrderHeader.Get(RefundHeader."Order Id");
+        case OrderHeader."Processed Currency Handling" of
+            "Shpfy Currency Handling"::"Shop Currency":
+                exit(this.CreateRoundingLine(SalesHeader, LineNo, OrderHeader."Payment Rounding Amount", OrderHeader."Refund Rounding Amount"));
+            "Shpfy Currency Handling"::"Presentment Currency":
+                exit(this.CreateRoundingLine(SalesHeader, LineNo, OrderHeader."Pres. Payment Rounding Amount", OrderHeader."Pres. Refund Rounding Amount"));
+        end;
+    end;
+
+    local procedure CreateRoundingLine(
+        var SalesHeader: Record "Sales Header";
+        var LineNo: Integer;
+        PaymentRoundingAmount: Decimal;
+        RefundRoundingAmount: Decimal): Decimal
+    var
         SalesLine: Record "Sales Line";
         CashRoundingLbl: Label 'Cash rounding';
     begin
-        OrderHeader.Get(RefundHeader."Order Id");
-        if OrderHeader."Payment Rounding Amount" <> 0 then begin
+        if PaymentRoundingAmount <> 0 then begin
             LineNo += 10000;
             SalesLine.Init();
             SalesLine.SetHideValidationDialog(true);
@@ -434,10 +448,10 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
             // SalesLine.Validate("No.", SalesLine.GetCPGInvRoundAcc(SalesHeader)); TODONAT
             SalesLine.Validate("No.", Shop."Refund Account");
             SalesLine.Validate(Quantity, 1);
-            SalesLine.Validate("Unit Price", OrderHeader."Refund Rounding Amount");
+            SalesLine.Validate("Unit Price", RefundRoundingAmount);
             SalesLine.Validate(Description, CashRoundingLbl);
             SalesLine.Modify();
-            exit(OrderHeader."Refund Rounding Amount");
+            exit(RefundRoundingAmount);
         end;
     end;
 }
