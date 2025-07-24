@@ -1,0 +1,83 @@
+namespace Microsoft.Integration.Shopify;
+
+/// <summary>
+/// Page Shpfy Product Collections (ID 30171).
+/// </summary>
+page 30171 "Shpfy Product Collections"
+{
+    ApplicationArea = All;
+    Caption = 'Shopify Custom Product Collections';
+    PageType = List;
+    SourceTable = "Shpfy Product Collection";
+    InsertAllowed = false;
+    DeleteAllowed = false;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(General)
+            {
+                field(Id; Rec.Id) { }
+                field(Name; Rec.Name) { }
+                field(Default; Rec.Default) { }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(GetProductCollections)
+            {
+                Caption = 'Get Custom Product Collections';
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                Image = UpdateDescription;
+                ToolTip = 'Retrieves the custom product collections from Shopify.';
+
+                trigger OnAction()
+                var
+                    ProductCollectionAPI: Codeunit "Shpfy Product Collection API";
+                begin
+                    ProductCollectionAPI.RetrieveProductCollectionsFromShopify(CopyStr(Rec.GetFilter("Shop Code"), 1, 20));
+                end;
+            }
+            action(SetAsDefault)
+            {
+                Caption = 'Set as Default';
+                Enabled = not Rec.Default;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                Image = Approve;
+                ToolTip = 'Sets Product Collection as Default.';
+
+                trigger OnAction()
+                begin
+                    Rec.Validate(Default, true);
+                    CurrPage.Update();
+                end;
+            }
+            action(UnsetDefault)
+            {
+                Caption = 'Unset Default';
+                Enabled = Rec.Default;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                Image = Reject;
+                ToolTip = 'Unsets Product Collection as Default.';
+
+                trigger OnAction()
+                begin
+                    Rec.Validate(Default, false);
+                    CurrPage.Update();
+                end;
+            }
+        }
+    }
+}
