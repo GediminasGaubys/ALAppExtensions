@@ -221,8 +221,7 @@ report 30118 "Shpfy Suggest Payments"
         if not OrderHeader.IsProcessed() then
             exit;
 
-        case
-            OrderHeader."Processed Currency Handling" of
+        case OrderHeader."Processed Currency Handling" of
             "Shpfy Currency Handling"::"Shop Currency":
                 AmountToApply := OrderTransaction.Amount + OrderTransaction."Rounding Amount";
             "Shpfy Currency Handling"::"Presentment Currency":
