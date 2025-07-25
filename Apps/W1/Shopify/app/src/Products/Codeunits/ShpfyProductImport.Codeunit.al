@@ -133,17 +133,20 @@ codeunit 30180 "Shpfy Product Import"
     /// </summary>
     /// <param name="ProductId">Parameter of type BigInteger.</param>
     /// <param name="ItemCreated">Parameter of type Boolean.</param>
-    internal procedure SetProductConflict(ProductId: BigInteger; ItemCreated: Boolean)
+    local procedure SetProductConflict(ProductId: BigInteger; ItemCreated: Boolean)
     var
         Product: Record "Shpfy Product";
     begin
         Product.Get(ProductId);
+        if ItemCreated and not Product."Has Error" then
+            exit;
+
         if not ItemCreated then begin
-            Product."Has Error" := true;
-            Product."Error Message" := CopyStr(Format(Time) + ' ' + GetLastErrorText(), 1, MaxStrLen(Product."Error Message"));
+            Product.Validate("Has Error", true);
+            Product.Validate("Error Message", CopyStr(Format(Time) + ' ' + GetLastErrorText(), 1, MaxStrLen(Product."Error Message")));
         end else begin
-            Product."Has Error" := false;
-            Product."Error Message" := '';
+            Product.Validate("Has Error", false);
+            Product.Validate("Error Message", '');
         end;
         Product.Modify(true);
     end;

@@ -163,18 +163,11 @@ page 30126 "Shpfy Products"
                     ExtendedDatatype = URL;
                     ToolTip = 'Specifies the url to preview the product on the webshop.';
                 }
-                field("Error"; Rec."Has Error")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies whether there is an error when creating an item.';
-                }
-                field(ErrorMessage; Rec."Error Message")
-                {
-                    ApplicationArea = All;
+                field("Error"; Rec."Has Error") { }
+                field(ErrorMessage; Rec."Error Message") {
                     Style = Attention;
                     StyleExpr = true;
-                    ToolTip = 'Specifies the error message if an error has occurred.';
-                }
+                 }
             }
             part(Variants; "Shpfy Variants")
             {
@@ -348,7 +341,6 @@ page 30126 "Shpfy Products"
             }
             action(CreateItem)
             {
-                ApplicationArea = All;
                 Caption = 'Create Item';
                 Image = NewItem;
                 Promoted = true;
@@ -358,12 +350,12 @@ page 30126 "Shpfy Products"
 
                 trigger OnAction();
                 var
-                    ShpfyProduct: Record "Shpfy Product";
-                    ShpfyCreateItem: Codeunit "Shpfy Create Item";
+                    Product: Record "Shpfy Product";
+                    CreateItem: Codeunit "Shpfy Create Item";
                 begin
                     if Confirm(this.ConfirmLbl) then begin
-                        CurrPage.SetSelectionFilter(ShpfyProduct);
-                        ShpfyCreateItem.CreateItemsFromShopifyProducts(ShpfyProduct);
+                        CurrPage.SetSelectionFilter(Product);
+                        CreateItem.CreateItemsFromShopifyProducts(Product);
                         CurrPage.Update(false);
                     end;
                 end;
