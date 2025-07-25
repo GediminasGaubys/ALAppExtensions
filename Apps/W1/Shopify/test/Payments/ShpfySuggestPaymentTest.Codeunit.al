@@ -274,6 +274,75 @@ codeunit 139648 "Shpfy Suggest Payment Test"
         LibraryAssert.AreEqual(PresentmentCurrencyCode, TempSuggestPayment."Currency Code", 'Currency code should match');
     end;
 
+    [Test]
+    procedure UnitTestSuggestShopifyPaymentRefundWithPresentmentCurrency()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        Currency: Record Currency;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        OrderTransaction: Record "Shpfy Order Transaction";
+        TempSuggestPayment: Record "Shpfy Suggest Payment" temporary;
+        SuggestPayments: Report "Shpfy Suggest Payments";
+        LibraryERM: Codeunit "Library - ERM";
+        OrderId: BigInteger;
+        RefundId: BigInteger;
+        TransactionId: BigInteger;
+        Amount: Decimal;
+        PresentmentAmount: Decimal;
+        PresentmentCurrencyCode: Code[10];
+    begin
+        // [SCENARIO] Suggest Shopify refund payments with presentment currency
+        Initialize();
+
+        // [GIVEN] Foreign currency
+        PresentmentCurrencyCode := LibraryERM.CreateCurrencyWithRounding();
+
+        // [GIVEN] Item and amounts
+        Amount := Any.IntegerInRange(10000, 99999);
+        Currency.Get(PresentmentCurrencyCode);
+        PresentmentAmount := CurrencyExchangeRate.ExchangeAmtLCYToFCY(
+            WorkDate(),
+            PresentmentCurrencyCode,
+            Amount,
+            Currency."Amount Rounding Precision"
+        );
+        CreateItem(Item, Amount);
+
+        // [GIVEN] Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Shopify order and refund
+        OrderId := Any.IntegerInRange(10000, 99999);
+        RefundId := Any.IntegerInRange(10000, 99999);
+        this.CreateOrderWithPresentmentCurrencyHandling(OrderId);
+        this.CreateRefundWithPresentmentAmount(OrderId, RefundId, Amount, PresentmentCurrencyCode, PresentmentAmount);
+
+        // [GIVEN] Transaction with presentment currency
+        TransactionId := this.CreateOrderTransactionWithPresentmentCurrency(
+            OrderId,
+            Amount,
+            'manual',
+            OrderTransaction.Type::Refund,
+            OrderTransaction.Status::Success,
+            PresentmentCurrencyCode,
+            PresentmentAmount
+        );
+
+        // [GIVEN] Posted credit memo
+        this.CreateAndPostSalesCreditMemoWithPresentmentCurrency(Item, Customer, 1, RefundId, PresentmentCurrencyCode);
+
+        // [WHEN] Suggest Payments is run
+        OrderTransaction.Get(TransactionId);
+        SuggestPayments.GetOrderTransactions(OrderTransaction);
+
+        // [THEN] Payment suggestion is created with presentment currency
+        SuggestPayments.GetTempSuggestPayment(TempSuggestPayment);
+        TempSuggestPayment.FindFirst();
+        LibraryAssert.AreEqual(-PresentmentAmount, TempSuggestPayment.Amount, 'Refund amounts should match');
+        LibraryAssert.AreEqual(PresentmentCurrencyCode, TempSuggestPayment."Currency Code", 'Currency codes should match');
+    end;
+
     local procedure Initialize()
     var
         OrderTransaction: Record "Shpfy Order Transaction";
@@ -324,6 +393,19 @@ codeunit 139648 "Shpfy Suggest Payment Test"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
         SalesHeader."Shpfy Refund Id" := RefundId;
         SalesHeader.Modify();
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", NumberOfLines);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreateAndPostSalesCreditMemoWithPresentmentCurrency(Item: Record Item; Customer: Record Customer; NumberOfLines: Integer; RefundId: BigInteger; PresentmentCurrencyCode: Code[10]): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+        SalesHeader.Validate("Currency Code", PresentmentCurrencyCode);
+        SalesHeader."Shpfy Refund Id" := RefundId;
+        SalesHeader.Modify(false);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", NumberOfLines);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
@@ -380,6 +462,23 @@ codeunit 139648 "Shpfy Suggest Payment Test"
         RefundHeader."Refund Id" := RefundId;
         RefundHeader."Order Id" := OrderId;
         RefundHeader."Total Refunded Amount" := Amount;
+        RefundHeader.Insert();
+    end;
+
+    local procedure CreateRefundWithPresentmentAmount(
+        OrderId: BigInteger;
+        RefundId: BigInteger;
+        Amount: Decimal;
+        PresentmentCurrencyCode: Code[10];
+        PresentmentAmount: Decimal)
+    var
+        RefundHeader: Record "Shpfy Refund Header";
+    begin
+        RefundHeader."Refund Id" := RefundId;
+        RefundHeader."Order Id" := OrderId;
+        RefundHeader."Total Refunded Amount" := Amount;
+        RefundHeader."Presentment Currency Code" := PresentmentCurrencyCode;
+        RefundHeader."Pres. Tot. Refunded Amount" := PresentmentAmount;
         RefundHeader.Insert();
     end;
 
