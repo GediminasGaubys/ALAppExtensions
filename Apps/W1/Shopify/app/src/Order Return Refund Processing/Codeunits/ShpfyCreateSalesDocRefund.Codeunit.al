@@ -352,7 +352,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
             until RefundShippingLine.Next() = 0;
     end;
 
-    local procedure FillRemainingAmountLineFields(var RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var LineNo: Integer)
+    local procedure FillRemainingAmountLineFields(RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LineNo: Integer)
     begin
         LineNo += 10000;
         SalesLine.Init();
@@ -368,7 +368,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
         SalesLine."Shpfy Refund Id" := RefundHeader."Refund Id";
     end;
 
-    local procedure CreateSalesLinesFromRemainingAmount(var RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var LineNo: Integer)
+    local procedure CreateSalesLinesFromRemainingAmount(RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var LineNo: Integer)
     var
         SalesLine: Record "Sales Line";
         Currency: Record Currency;
