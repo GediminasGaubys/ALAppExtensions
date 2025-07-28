@@ -9,6 +9,7 @@ using Microsoft.Integration.Shopify;
 using System.TestLibraries.Utilities;
 using Microsoft.Sales.Document;
 using Microsoft.Inventory.Location;
+using Microsoft.Finance.Currency;
 
 codeunit 139611 "Shpfy Order Refund Test"
 {

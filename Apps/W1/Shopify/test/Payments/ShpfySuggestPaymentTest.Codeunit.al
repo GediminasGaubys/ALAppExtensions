@@ -11,6 +11,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Sales.Customer;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Sales.Document;
+using Microsoft.Finance.Currency;
 
 codeunit 139648 "Shpfy Suggest Payment Test"
 {

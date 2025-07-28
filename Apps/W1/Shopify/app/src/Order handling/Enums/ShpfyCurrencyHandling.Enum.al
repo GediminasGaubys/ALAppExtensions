@@ -1,9 +1,14 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 /// <summary>
-/// Enum Shpfy Currency Handling (ID 30168).
+/// Enum Shpfy Currency Handling (ID 30169).
 /// </summary>
-enum 30168 "Shpfy Currency Handling"
+enum 30169 "Shpfy Currency Handling"
 {
     Extensible = false;
     Caption = 'Shopify Currency Handling';

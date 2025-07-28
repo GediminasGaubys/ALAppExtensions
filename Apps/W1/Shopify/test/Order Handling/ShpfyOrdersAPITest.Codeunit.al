@@ -13,6 +13,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Foundation.Address;
+using Microsoft.Finance.Currency;
 
 codeunit 139608 "Shpfy Orders API Test"
 {
