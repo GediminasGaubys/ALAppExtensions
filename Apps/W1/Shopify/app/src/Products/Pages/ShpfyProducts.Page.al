@@ -164,10 +164,11 @@ page 30126 "Shpfy Products"
                     ToolTip = 'Specifies the url to preview the product on the webshop.';
                 }
                 field("Error"; Rec."Has Error") { }
-                field(ErrorMessage; Rec."Error Message") {
+                field(ErrorMessage; Rec."Error Message")
+                {
                     Style = Attention;
                     StyleExpr = true;
-                 }
+                }
             }
             part(Variants; "Shpfy Variants")
             {
