@@ -773,7 +773,7 @@ codeunit 139608 "Shpfy Orders API Test"
         Shop.Modify(false);
         // [GIVEN] Presentment currency
         PresentmentCurrencyCode := LibraryERM.CreateCurrencyWithRounding();
-        // [GIVEN] Amount and PresentmentAmount
+        // [GIVEN] Amount and Presentment amount
         Amount := LibraryRandom.RandDec(999, 2);
         Currency.Get(PresentmentCurrencyCode);
         PresentmentAmount := Round(CurrencyExchangeRate.ExchangeAmtLCYToFCY(
