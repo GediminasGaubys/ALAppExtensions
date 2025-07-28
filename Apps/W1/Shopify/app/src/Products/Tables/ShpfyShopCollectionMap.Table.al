@@ -13,6 +13,9 @@ table 30128 "Shpfy Shop Collection Map"
     Access = Internal;
     Caption = 'Shopify Shop Collection';
     DataClassification = CustomerContent;
+    ObsoleteReason = 'Shpfy Shop Collection Map is not used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
     fields
     {
         field(1; Id; Integer)
