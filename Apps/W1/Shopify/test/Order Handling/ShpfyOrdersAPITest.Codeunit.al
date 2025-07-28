@@ -750,19 +750,15 @@ codeunit 139608 "Shpfy Orders API Test"
     var
         Shop: Record "Shpfy Shop";
         OrderHeader: Record "Shpfy Order Header";
-        OrderLine: Record "Shpfy Order Line";
         SalesHeader: Record "Sales Header";
         ShopifyCustomer: Record "Shpfy Customer";
-        Customer: Record Customer;
         Item: Record Item;
-        ShopifyVariant: Record "Shpfy Variant";
         SalesLine: Record "Sales Line";
         Currency: Record Currency;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         ProcessOrders: Codeunit "Shpfy Process Orders";
         CommunicationMgt: Codeunit "Shpfy Communication Mgt.";
         LibraryERM: Codeunit "Library - ERM";
-        LibrarySales: Codeunit "Library - Sales";
         OrderHeaderId: BigInteger;
         Amount: Decimal;
         PresentmentAmount: Decimal;
@@ -780,41 +776,28 @@ codeunit 139608 "Shpfy Orders API Test"
         // [GIVEN] Amount and PresentmentAmount
         Amount := LibraryRandom.RandDec(999, 2);
         Currency.Get(PresentmentCurrencyCode);
-        PresentmentAmount := CurrencyExchangeRate.ExchangeAmtLCYToFCY(
-            WorkDate(),
-            PresentmentCurrencyCode,
-            Amount,
+        PresentmentAmount := Round(CurrencyExchangeRate.ExchangeAmtLCYToFCY(
+                WorkDate(),
+                PresentmentCurrencyCode,
+                Amount,
+                CurrencyExchangeRate.ExchangeRate(WorkDate(), PresentmentCurrencyCode)),
             Currency."Amount Rounding Precision");
         // [GIVEN] Customer
-        LibrarySales.CreateCustomer(Customer);
-        ShopifyCustomer.Id := LibraryRandom.RandIntInRange(100000, 999999);
-        ShopifyCustomer."Customer SystemId" := Customer.SystemId;
-        ShopifyCustomer."Shop Id" := Shop."Shop Id";
-        ShopifyCustomer.Insert(false);
+        this.CreateShopifyCustomer(Shop, ShopifyCustomer);
         // [GIVEN] Item
-        CreateItem(Item, Amount);
+        this.CreateItem(Item, Amount);
         // [GIVEN] Shopify order
-        OrderHeader."Customer Id" := ShopifyCustomer.Id;
-        OrderHeader."Shop Code" := Shop.Code;
-        OrderHeader."Presentment Currency Code" := PresentmentCurrencyCode;
-        OrderHeader."Presentment Total Amount" := PresentmentAmount;
-        OrderHeader."Total Amount" := Amount;
+        this.CreatePresentmentShopifyOrder(
+            Shop,
+            OrderHeader,
+            OrderHeaderId,
+            ShopifyCustomer,
+            Item,
+            Amount,
+            PresentmentAmount,
+            PresentmentCurrencyCode);
 
-        OrderHeader."Shopify Order Id" := LibraryRandom.RandIntInRange(100000, 999999);
-        OrderHeaderId := OrderHeader."Shopify Order Id";
-        OrderHeader.Insert(false);
-
-        ShopifyVariant."Item SystemId" := Item.SystemId;
-        ShopifyVariant.Id := LibraryRandom.RandIntInRange(100000, 999999);
-        ShopifyVariant."Shop Code" := Shop.Code;
-        ShopifyVariant.Insert(false);
-        OrderLine."Shopify Order Id" := OrderHeader."Shopify Order Id";
-        OrderLine."Shopify Variant Id" := ShopifyVariant.Id;
-        OrderLine."Unit Price" := Amount;
-        OrderLine."Presentment Unit Price" := PresentmentAmount;
-        OrderLine.Quantity := 1;
-        OrderLine.Insert(false);
-        // Commit(); 
+        Commit(); // Commit to make ProcessShopifyOrder Codeunit.Run() execution work
 
         // [WHEN] Order is processed
         ProcessOrders.ProcessShopifyOrder(OrderHeader);
@@ -826,7 +809,10 @@ codeunit 139608 "Shpfy Orders API Test"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("No.", Item."No.");
         SalesLine.FindFirst();
-        LibraryAssert.AreEqual(SalesLine.Amount, PresentmentAmount, 'Sales line amount should match presentment amount');
+        LibraryAssert.AreEqual(PresentmentAmount, SalesLine.Amount, 'Sales line amount should match presentment amount');
+        // [THEN] Restore Shop currency handling
+        Shop."Currency Handling" := Shop."Currency Handling"::"Shop Currency";
+        Shop.Modify(false);
     end;
 
     local procedure CreateTaxArea(var TaxArea: Record "Tax Area"; var ShopifyTaxArea: Record "Shpfy Tax Area"; Shop: Record "Shpfy Shop")
@@ -900,6 +886,41 @@ codeunit 139608 "Shpfy Orders API Test"
         Item.Modify(true);
     end;
 
+    local procedure CreatePresentmentShopifyOrder(
+        Shop: Record "Shpfy Shop";
+        var OrderHeader: Record "Shpfy Order Header";
+        var OrderHeaderId: BigInteger;
+        ShopifyCustomer: Record "Shpfy Customer";
+        Item: Record Item;
+        Amount: Decimal;
+        PresentmentAmount: Decimal;
+        PresentmentCurrencyCode: Code[10])
+    var
+        OrderLine: Record "Shpfy Order Line";
+        ShopifyVariant: Record "Shpfy Variant";
+    begin
+        OrderHeader."Customer Id" := ShopifyCustomer.Id;
+        OrderHeader."Shop Code" := Shop.Code;
+        OrderHeader."Presentment Currency Code" := PresentmentCurrencyCode;
+        OrderHeader."Presentment Total Amount" := PresentmentAmount;
+        OrderHeader."Total Amount" := Amount;
+
+        OrderHeader."Shopify Order Id" := LibraryRandom.RandIntInRange(100000, 999999);
+        OrderHeaderId := OrderHeader."Shopify Order Id";
+        OrderHeader.Insert(false);
+
+        ShopifyVariant."Item SystemId" := Item.SystemId;
+        ShopifyVariant.Id := LibraryRandom.RandIntInRange(100000, 999999);
+        ShopifyVariant."Shop Code" := Shop.Code;
+        ShopifyVariant.Insert(false);
+        OrderLine."Shopify Order Id" := OrderHeader."Shopify Order Id";
+        OrderLine."Shopify Variant Id" := ShopifyVariant.Id;
+        OrderLine."Unit Price" := Amount;
+        OrderLine."Presentment Unit Price" := PresentmentAmount;
+        OrderLine.Quantity := 1;
+        OrderLine.Insert(false);
+    end;
+
     local procedure Initialize()
     var
         OrdersAPISubscriber: Codeunit "Shpfy Orders API Subscriber";
@@ -907,4 +928,17 @@ codeunit 139608 "Shpfy Orders API Test"
         Codeunit.Run(Codeunit::"Shpfy Initialize Test");
         if BindSubscription(OrdersAPISubscriber) then;
     end;
+
+    local procedure CreateShopifyCustomer(Shop: Record "Shpfy Shop"; var ShopifyCustomer: Record "Shpfy Customer")
+    var
+        Customer: Record Customer;
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        ShopifyCustomer.Id := LibraryRandom.RandIntInRange(100000, 999999);
+        ShopifyCustomer."Customer SystemId" := Customer.SystemId;
+        ShopifyCustomer."Shop Id" := Shop."Shop Id";
+        ShopifyCustomer.Insert(false);
+    end;
+
 }
