@@ -60,7 +60,6 @@ page 30149 "Shpfy Return Lines"
                 field("Presentment Disc. Total Amt."; Rec."Presentment Disc. Total Amt.")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the total line price in the presentment currency after all discounts on the line item, including both line item level discounts and code-based line item discounts, are applied.';
                     Visible = this.PresentmentCurrencyVisible;
                 }
                 field(Weight; Rec.Weight)
@@ -140,7 +139,6 @@ page 30149 "Shpfy Return Lines"
 
     internal procedure ShowPresentmentCurrency(Visible: Boolean)
     begin
-        PresentmentCurrencyVisible := Visible;
-
+        this.PresentmentCurrencyVisible := Visible;
     end;
 }

@@ -772,7 +772,6 @@ table 30102 "Shpfy Shop"
         field(135; "Currency Handling"; Enum "Shpfy Currency Handling")
         {
             Caption = 'Currency Handling';
-            DataClassification = SystemMetadata;
             InitValue = "Shop Currency";
         }
         field(200; "Shop Id"; Integer)

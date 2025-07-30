@@ -78,7 +78,6 @@ page 30145 "Shpfy Refund"
                 }
                 field(CurrencyCode; Rec."Currency Code")
                 {
-                    ApplicationArea = All;
                     ToolTip = 'Specifies the currency code for the refund.';
                 }
                 group(PresentmentCurrency)
@@ -86,16 +85,8 @@ page 30145 "Shpfy Refund"
                     ShowCaption = false;
                     Visible = this.PresentmentCurrencyVisible;
 
-                    field("Pres. Tot. Refunded Amount"; Rec."Pres. Tot. Refunded Amount")
-                    {
-                        ApplicationArea = All;
-                        ToolTip = 'Specifies the total amount in presentment currency across all transactions for the refund.';
-                    }
-                    field("Presentment Currency Code"; Rec."Presentment Currency Code")
-                    {
-                        ApplicationArea = All;
-                        ToolTip = 'Specifies the presentment currency code for the refund.';
-                    }
+                    field("Pres. Tot. Refunded Amount"; Rec."Pres. Tot. Refunded Amount") { }
+                    field("Presentment Currency Code"; Rec."Presentment Currency Code") { }
                 }
             }
             part(Lines; "Shpfy Refund Lines")

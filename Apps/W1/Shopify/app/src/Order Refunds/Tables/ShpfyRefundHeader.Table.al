@@ -53,6 +53,7 @@ table 30142 "Shpfy Refund Header"
             Editable = false;
             AutoFormatType = 1;
             AutoFormatExpression = OrderCurrencyCode();
+
         }
         field(7; "Pres. Tot. Refunded Amount"; Decimal)
         {
@@ -60,7 +61,8 @@ table 30142 "Shpfy Refund Header"
             DataClassification = SystemMetadata;
             Editable = false;
             AutoFormatType = 1;
-            AutoFormatExpression = OrderPresentmentCurrencyCode();
+            AutoFormatExpression = this.OrderPresentmentCurrencyCode();
+            ToolTip = 'Specifies the total amount in presentment currency across all transactions for the refund.';
         }
         field(8; Note; Blob)
         {
@@ -145,6 +147,7 @@ table 30142 "Shpfy Refund Header"
         field(109; "Presentment Currency Code"; Code[10])
         {
             Caption = 'Presentment Currency Code';
+            ToolTip = 'Specifies the presentment currency code for the refund.';
         }
     }
     keys

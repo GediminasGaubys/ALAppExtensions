@@ -53,7 +53,6 @@ page 30128 "Shpfy Order Shipping Charges"
                 {
                     ApplicationArea = All;
                     Caption = 'Presentment Amount';
-                    ToolTip = 'Specifies the shipping cost amount in presentment currency.';
                     Visible = this.PresentmentCurrencyVisible;
                 }
                 field("Discount Amount"; Rec."Discount Amount")
@@ -66,7 +65,6 @@ page 30128 "Shpfy Order Shipping Charges"
                 {
                     ApplicationArea = All;
                     Caption = 'Presentment Discount Amount';
-                    ToolTip = 'Specifies the shipping cost discount amount in presentment currency.';
                     Visible = this.PresentmentCurrencyVisible;
                 }
                 field(Source; Rec.Source)

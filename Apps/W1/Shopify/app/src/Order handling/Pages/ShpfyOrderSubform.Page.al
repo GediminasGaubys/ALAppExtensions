@@ -81,7 +81,6 @@ page 30122 "Shpfy Order Subform"
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = 'Specifies the prices in presentment currrency for one unit on the line.';
                     Visible = this.PresentmentCurrencyVisible;
                 }
                 field(DiscountAmount; Rec."Discount Amount")
@@ -95,7 +94,6 @@ page 30122 "Shpfy Order Subform"
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = 'Specifies the discount amount in presentment currrency that is granted for the item on the line.';
                 }
                 field(FullfillableQuantity; Rec."Fulfillable Quantity")
                 {

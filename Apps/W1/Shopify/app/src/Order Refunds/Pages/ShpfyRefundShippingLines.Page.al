@@ -31,7 +31,6 @@ page 30169 "Shpfy Refund Shipping Lines"
                 field("Presentment Subtotal Amount"; Rec."Presentment Subtotal Amount")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the subtotal price of a refund shipping line in the presentment currency.';
                     Visible = this.PresentmentCurrencyVisible;
                 }
                 field("Tax Amount"; Rec."Tax Amount")
@@ -42,7 +41,6 @@ page 30169 "Shpfy Refund Shipping Lines"
                 field("Presentment Tax Amount"; Rec."Presentment Tax Amount")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the total tax amount of a refund shipping line in the presentment currency.';
                     Visible = this.PresentmentCurrencyVisible;
                 }
             }

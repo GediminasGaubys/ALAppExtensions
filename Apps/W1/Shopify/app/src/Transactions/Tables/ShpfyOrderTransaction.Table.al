@@ -91,12 +91,14 @@ table 30133 "Shpfy Order Transaction"
         field(12; "Presentment Currency"; Code[20])
         {
             Caption = 'Presentment Currency';
+            ToolTip = 'Specifies the currency of the transaction in the presentment currency.';
             DataClassification = SystemMetadata;
             Editable = false;
         }
         field(13; "Presentment Amount"; Decimal)
         {
             Caption = 'Presentment Amount';
+            ToolTip = 'Specifies the amount of money included in the transaction in the presentment currency.';
             DataClassification = SystemMetadata;
             Editable = false;
         }

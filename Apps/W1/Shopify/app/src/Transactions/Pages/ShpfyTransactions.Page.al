@@ -77,13 +77,11 @@ page 30134 "Shpfy Transactions"
                 field("Presentment Amount"; Rec."Presentment Amount")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the amount of money included in the transaction in the presentment currency.';
                     Visible = this.PresentmentCurrencyVisible;
                 }
                 field("Presentment Currency"; Rec."Presentment Currency")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the currency of the transaction in the presentment currency.';
                     Visible = this.PresentmentCurrencyVisible;
                 }
                 field(Test; Rec.Test)

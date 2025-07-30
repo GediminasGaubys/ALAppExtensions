@@ -46,7 +46,6 @@ page 30146 "Shpfy Refund Lines"
                 field("Presentment Amount"; Rec."Presentment Amount")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the price in presentment currency of a refunded line item.';
                     Visible = this.PresentmentCurrencyVisible;
                 }
                 field(LineDiscount; (Rec.Quantity * Rec.Amount) - Rec."Subtotal Amount")
@@ -59,7 +58,7 @@ page 30146 "Shpfy Refund Lines"
                     AutoFormatType = 1;
                     AutoFormatExpression = Rec.OrderCurrencyCode();
                 }
- 				field(PresentmentLineDiscount; (Rec.Quantity * Rec."Presentment Amount") - Rec."Presentment Subtotal Amount")
+                field(PresentmentLineDiscount; (Rec.Quantity * Rec."Presentment Amount") - Rec."Presentment Subtotal Amount")
                 {
                     ApplicationArea = All;
                     Caption = 'Presentment Line Discount';
@@ -76,7 +75,6 @@ page 30146 "Shpfy Refund Lines"
                 field("Presentment Subtotal Amount"; Rec."Presentment Subtotal Amount")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the subtotal price of a refunded line item in presentment currency.';
                     Visible = this.PresentmentCurrencyVisible;
                 }
                 field("Total Tax Amount"; Rec."Total Tax Amount")
@@ -87,7 +85,6 @@ page 30146 "Shpfy Refund Lines"
                 field("Presentment Total Tax Amount"; Rec."Presentment Total Tax Amount")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the total tax charged on a refunded line item in presentment currencty.';
                     Visible = this.PresentmentCurrencyVisible;
                 }
                 field("Restock Type"; Rec."Restock Type")

@@ -249,7 +249,7 @@ page 30113 "Shpfy Order"
 
                     field(ProcessedCurrencyHandling; Rec."Processed Currency Handling")
                     {
-                    	    ApplicationArea = All;
+                        ApplicationArea = All;
                         Caption = 'Processed Currency Handling';
                         Importance = Additional;
                         Editable = false;
@@ -382,38 +382,32 @@ page 30113 "Shpfy Order"
                     {
                         ApplicationArea = All;
                         Editable = false;
-                        ToolTip = 'Specifies the sum of the line amounts on all lines in the document minus any discount amounts in presentment currency.';
                     }
                     field("Pres. Shipping Charges Amount"; Rec."Pres. Shipping Charges Amount")
                     {
                         ApplicationArea = All;
                         Editable = false;
-                        ToolTip = 'Specifies the amount of the shipping cost in presentment currency.';
                     }
                     field("Presentment Total Amount"; Rec."Presentment Total Amount")
                     {
                         ApplicationArea = All;
                         Editable = false;
                         Importance = Promoted;
-                        ToolTip = 'Specifies the sum of the line amounts on all lines in the document minus any discount amounts plus the shipping costs in presentment currency.';
                     }
                     field("Presentment VAT Amount"; Rec."Presentment VAT Amount")
                     {
                         ApplicationArea = All;
                         Editable = false;
-                        ToolTip = 'Specifies the sum of the line amounts on all lines in the document minus any discount amounts plus the shipping costs in presentment currency.';
                     }
                     field("Presentment Discount Amount"; Rec."Presentment Discount Amount")
                     {
                         ApplicationArea = All;
                         Editable = false;
-                        ToolTip = 'Specifies the sum of all discount amount on all lines in the document in prsentment currency.';
                     }
                     field("Presentment Currency Code"; Rec."Presentment Currency Code")
                     {
                         ApplicationArea = All;
                         Editable = false;
-                        ToolTip = 'Specifies the presentment currency of amounts on the document.';
                     }
                 }
             }
