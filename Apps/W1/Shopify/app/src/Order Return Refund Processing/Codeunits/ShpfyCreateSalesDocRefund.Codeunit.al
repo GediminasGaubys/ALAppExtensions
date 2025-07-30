@@ -400,7 +400,6 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
                         );
                     SalesLine.Modify(false);
                 end;
-
             "Shpfy Currency Handling"::"Presentment Currency":
                 if SalesHeader."Amount Including VAT" <> RefundHeader."Pres. Tot. Refunded Amount" then begin
                     FillRemainingAmountLineFields(RefundHeader, SalesHeader, SalesLine, LineNo);

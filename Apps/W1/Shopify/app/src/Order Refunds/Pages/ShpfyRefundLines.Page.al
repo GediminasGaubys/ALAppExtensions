@@ -124,9 +124,9 @@ page 30146 "Shpfy Refund Lines"
             }
         }
     }
+
     var
         PresentmentCurrencyVisible: Boolean;
-
 
     internal procedure SetShowPresentmentCurrency(Show: Boolean)
     begin

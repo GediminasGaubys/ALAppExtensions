@@ -829,7 +829,7 @@ codeunit 139608 "Shpfy Orders API Test"
 
         // [THEN] Sales document is created from Shopify order and order line is reserved
         SalesHeader.SetRange("Shpfy Order Id", OrderHeaderId);
-        LibraryAssert.IsTrue(SalesHeader.FindLast(), 'Sales document is created from Shopify order');
+        SalesHeader.FindLast();
         LibraryAssert.AreEqual(SalesHeader."Currency Code", PresentmentCurrencyCode, 'Sales document is created with presentment currency');
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("No.", Item."No.");

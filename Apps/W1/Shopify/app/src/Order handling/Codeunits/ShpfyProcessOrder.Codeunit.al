@@ -339,8 +339,7 @@ codeunit 30166 "Shpfy Process Order"
         end;
     end;
 
-    local procedure AssignItemCharges(SalesHeader: Record "Sales Header";
-    SalesLine: Record "Sales Line")
+    local procedure AssignItemCharges(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     var
         AssignItemChargeSales: Codeunit "Item Charge Assgnt. (Sales)";
         ItemChargeAssgntLineAmt: Decimal;
