@@ -173,7 +173,11 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
         CreateSalesLinesFromRemainingAmount(RefundHeader, SalesHeader, LineNo);
     end;
 
-    local procedure CreateSalesLinesFromRefundLines(var RefundLine: Record "Shpfy Refund Line"; RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var LineNo: Integer)
+    local procedure CreateSalesLinesFromRefundLines(
+        var RefundLine: Record "Shpfy Refund Line";
+        RefundHeader: Record "Shpfy Refund Header";
+        SalesHeader: Record "Sales Header";
+        var LineNo: Integer)
     var
         SalesLine: Record "Sales Line";
         GiftCard: Record "Shpfy Gift Card";
@@ -282,7 +286,11 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
         until RefundLine.Next() = 0
     end;
 
-    local procedure CreateSalesLinesFromReturnLines(var ReturnLine: Record "Shpfy Return Line"; RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var LineNo: Integer)
+    local procedure CreateSalesLinesFromReturnLines(
+        var ReturnLine: Record "Shpfy Return Line";
+        RefundHeader: Record "Shpfy Refund Header";
+        SalesHeader: Record "Sales Header";
+        var LineNo: Integer)
     var
         SalesLine: Record "Sales Line";
         ShopLocation: Record "Shpfy Shop Location";
@@ -319,7 +327,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
         until ReturnLine.Next() = 0;
     end;
 
-    local procedure CreateSalesLinesFromRefundShippingLines(RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var LineNo: Integer)
+    local procedure CreateSalesLinesFromRefundShippingLines(RefundHeader: Record "Shpfy Refund Header"; SalesHeader: Record "Sales Header"; var LineNo: Integer)
     var
         RefundShippingLine: Record "Shpfy Refund Shipping Line";
         SalesLine: Record "Sales Line";
@@ -358,7 +366,11 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
             until RefundShippingLine.Next() = 0;
     end;
 
-    local procedure FillRemainingAmountLineFields(RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LineNo: Integer)
+    local procedure FillRemainingAmountLineFields(
+        RefundHeader: Record "Shpfy Refund Header";
+        SalesHeader: Record "Sales Header";
+        var SalesLine: Record "Sales Line";
+        var LineNo: Integer)
     begin
         LineNo += 10000;
         SalesLine.Init();
@@ -368,13 +380,16 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
         SalesLine.Validate("Line No.", LineNo);
         SalesLine.Insert(true);
         SalesLine.Validate(Type, "Sales Line Type"::"G/L Account");
-        Shop.TestField("Refund Account");
-        SalesLine.Validate("No.", Shop."Refund Account");
+        this.Shop.TestField("Refund Account");
+        SalesLine.Validate("No.", this.Shop."Refund Account");
         SalesLine.Validate(Quantity, 1);
         SalesLine."Shpfy Refund Id" := RefundHeader."Refund Id";
     end;
 
-    local procedure CreateSalesLinesFromRemainingAmount(RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var LineNo: Integer)
+    local procedure CreateSalesLinesFromRemainingAmount(
+        RefundHeader: Record "Shpfy Refund Header";
+        SalesHeader: Record "Sales Header";
+        var LineNo: Integer)
     var
         SalesLine: Record "Sales Line";
         Currency: Record Currency;
@@ -418,7 +433,10 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
         end;
     end;
 
-    local procedure CreateRoundingLine(RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var LineNo: Integer): Decimal
+    local procedure CreateRoundingLine(
+        RefundHeader: Record "Shpfy Refund Header";
+        SalesHeader: Record "Sales Header";
+        var LineNo: Integer): Decimal
     var
         OrderHeader: Record "Shpfy Order Header";
     begin
@@ -432,7 +450,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
     end;
 
     local procedure CreateRoundingLine(
-        var SalesHeader: Record "Sales Header";
+        SalesHeader: Record "Sales Header";
         var LineNo: Integer;
         PaymentRoundingAmount: Decimal;
         RefundRoundingAmount: Decimal): Decimal
