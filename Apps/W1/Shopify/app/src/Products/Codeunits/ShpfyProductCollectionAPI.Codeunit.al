@@ -12,10 +12,10 @@ codeunit 30105 "Shpfy Product Collection API"
         CommunicationMgt: Codeunit "Shpfy Communication Mgt.";
 
     /// <summary>
-    /// Retrieves the product collections from Shopify and updates the table with the new product collections.
+    /// Retrieves the custom product collections from Shopify and updates the table with the new product collections.
     /// </summary>
     /// <param name="ShopCode">The code of the shop.</param>
-    internal procedure RetrieveProductCollectionsFromShopify(ShopCode: Code[20])
+    internal procedure RetrieveCustomProductCollectionsFromShopify(ShopCode: Code[20])
     var
         GraphQLType: Enum "Shpfy GraphQL Type";
         JResponse: JsonToken;
@@ -27,7 +27,7 @@ codeunit 30105 "Shpfy Product Collection API"
         CurrentCollections := this.CollectCollections(ShopCode);
 
         this.CommunicationMgt.SetShop(ShopCode);
-        GraphQLType := GraphQLType::GetProductCollections;
+        GraphQLType := GraphQLType::GetCustomProductCollections;
 
         repeat
             JResponse := this.CommunicationMgt.ExecuteGraphQL(GraphQLType, Parameters);
@@ -37,7 +37,7 @@ codeunit 30105 "Shpfy Product Collection API"
                     Parameters.Set('After', Cursor)
                 else
                     Parameters.Add('After', Cursor);
-                GraphQLType := GraphQLType::GetNextProductCollections;
+                GraphQLType := GraphQLType::GetNextCustomProductCollections;
             end;
         until not this.JsonHelper.GetValueAsBoolean(JResponse, 'data.collections.pageInfo.hasNextPage');
 

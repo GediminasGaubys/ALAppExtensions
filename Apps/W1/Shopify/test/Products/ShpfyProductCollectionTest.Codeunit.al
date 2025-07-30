@@ -29,7 +29,7 @@ codeunit 139542 "Shpfy Product Collection Test"
         JPublications := this.ProdCollectionHelper.GetProductCollectionResponse(this.Any.IntegerInRange(10000, 99999));
 
         // [WHEN] Invoking the procedure: ShpfyProductCollectionAPI.RetrieveProductCollectionsFromShopify
-        this.InvokeRetrieveProductCollectionsFromShopify(JPublications);
+        this.InvokeRetrieveCustomProductCollectionsFromShopify(JPublications);
 
         // [THEN] The product collection is imported to Business Central.
         ProductCollection.SetRange("Shop Code", this.Shop.Code);
@@ -58,7 +58,7 @@ codeunit 139542 "Shpfy Product Collection Test"
         JPublications := this.ProdCollectionHelper.GetProductCollectionResponse(CollectionId);
 
         // [WHEN] Invoking the procedure: ShpfyProductCollectionAPI.RetrieveProductCollectionsFromShopify
-        this.InvokeRetrieveProductCollectionsFromShopify(JPublications);
+        this.InvokeRetrieveCustomProductCollectionsFromShopify(JPublications);
 
         // [THEN] The additional product collection is removed from Business Central.
         ProductCollection.SetRange("Shop Code", this.Shop.Code);
@@ -167,14 +167,14 @@ codeunit 139542 "Shpfy Product Collection Test"
         ShpfyVariant.Insert(false);
     end;
 
-    local procedure InvokeRetrieveProductCollectionsFromShopify(var JPublications: JsonArray)
+    local procedure InvokeRetrieveCustomProductCollectionsFromShopify(var JPublications: JsonArray)
     var
         ProductCollectionAPI: Codeunit "Shpfy Product Collection API";
         ProductCollectionSubs: Codeunit "Shpfy Product Collection Subs.";
     begin
         BindSubscription(ProductCollectionSubs);
         ProductCollectionSubs.SetJEdges(JPublications);
-        ProductCollectionAPI.RetrieveProductCollectionsFromShopify(this.Shop.Code);
+        ProductCollectionAPI.RetrieveCustomProductCollectionsFromShopify(this.Shop.Code);
         UnbindSubscription(ProductCollectionSubs);
     end;
 }

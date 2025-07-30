@@ -7,6 +7,8 @@ table 30136 "Shpfy Product Collection"
 {
     Caption = 'Shopify Product Collection';
     DataClassification = CustomerContent;
+    DrillDownPageId = "Shpfy Product Collections";
+    LookupPageId = "Shpfy Product Collections";
 
     fields
     {

@@ -33,9 +33,6 @@ page 30171 "Shpfy Product Collections"
             action(GetProductCollections)
             {
                 Caption = 'Get Custom Product Collections';
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 Image = UpdateDescription;
                 ToolTip = 'Retrieves the custom product collections from Shopify.';
 
@@ -43,16 +40,13 @@ page 30171 "Shpfy Product Collections"
                 var
                     ProductCollectionAPI: Codeunit "Shpfy Product Collection API";
                 begin
-                    ProductCollectionAPI.RetrieveProductCollectionsFromShopify(CopyStr(Rec.GetFilter("Shop Code"), 1, 20));
+                    ProductCollectionAPI.RetrieveCustomProductCollectionsFromShopify(CopyStr(Rec.GetFilter("Shop Code"), 1, 20));
                 end;
             }
             action(SetAsDefault)
             {
                 Caption = 'Set as Default';
                 Enabled = not Rec.Default;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 Image = Approve;
                 ToolTip = 'Sets Product Collection as Default.';
 
@@ -66,9 +60,6 @@ page 30171 "Shpfy Product Collections"
             {
                 Caption = 'Unset Default';
                 Enabled = Rec.Default;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 Image = Reject;
                 ToolTip = 'Unsets Product Collection as Default.';
 
@@ -78,6 +69,12 @@ page 30171 "Shpfy Product Collections"
                     CurrPage.Update();
                 end;
             }
+        }
+        area(Promoted)
+        {
+            actionref(PromotedGetProductCollections; GetProductCollections) { }
+            actionref(PromotedSetAsDefault; SetAsDefault) { }
+            actionref(PromotedUnsetDefault; UnsetDefault) { }
         }
     }
 }

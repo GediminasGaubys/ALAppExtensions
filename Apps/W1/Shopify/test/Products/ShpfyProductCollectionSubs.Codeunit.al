@@ -21,20 +21,19 @@ codeunit 139545 "Shpfy Product Collection Subs."
 
     local procedure MakeResponse(HttpRequestMessage: HttpRequestMessage; var HttpResponseMessage: HttpResponseMessage)
     var
-        GQLProductCollections: Codeunit "Shpfy GQL ProductCollections";
+        GQLProductCollections: Codeunit "Shpfy GQL CustProdCollections";
         Uri: Text;
         GraphQlQuery: Text;
-
         PublishProductTok: Label '{"query":"mutation {publishablePublish(id: \"gid://shopify/Product/', locked = true;
         ProductCreateTok: Label '{"query":"mutation {productCreate(', locked = true;
         VariantCreateTok: Label '{"query":"mutation { productVariantsBulkCreate(', locked = true;
-        GraphQLCmdTxt: Label '/graphql.json', Locked = true;
+        GraphQLCmdTok: Label '/graphql.json', Locked = true;
     begin
         case HttpRequestMessage.Method of
             'POST':
                 begin
                     Uri := HttpRequestMessage.GetRequestUri();
-                    if Uri.EndsWith(GraphQLCmdTxt) then
+                    if Uri.EndsWith(GraphQLCmdTok) then
                         if HttpRequestMessage.Content.ReadAs(GraphQlQuery) then
                             case true of
                                 GraphQlQuery.Contains(PublishProductTok):
