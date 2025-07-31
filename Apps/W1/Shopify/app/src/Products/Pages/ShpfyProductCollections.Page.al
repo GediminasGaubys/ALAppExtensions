@@ -1,9 +1,14 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 /// <summary>
-/// Page Shpfy Product Collections (ID 30171).
+/// Page Shpfy Product Collections (ID 30172).
 /// </summary>
-page 30171 "Shpfy Product Collections"
+page 30172 "Shpfy Product Collections"
 {
     ApplicationArea = All;
     Caption = 'Shopify Custom Product Collections';
@@ -53,7 +58,7 @@ page 30171 "Shpfy Product Collections"
                 trigger OnAction()
                 begin
                     Rec.Validate(Default, true);
-                    CurrPage.Update();
+                    CurrPage.Update(true);
                 end;
             }
             action(UnsetDefault)
@@ -66,7 +71,7 @@ page 30171 "Shpfy Product Collections"
                 trigger OnAction()
                 begin
                     Rec.Validate(Default, false);
-                    CurrPage.Update();
+                    CurrPage.Update(true);
                 end;
             }
         }

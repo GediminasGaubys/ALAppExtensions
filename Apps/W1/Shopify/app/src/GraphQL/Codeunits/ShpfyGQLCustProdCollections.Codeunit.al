@@ -1,9 +1,14 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 /// <summary>
-/// Codeunit Shpfy GQL Custom Product Collections (ID 30400) implements Interface Shpfy IGraphQL.
+/// Codeunit Shpfy GQL Custom Product Collections (ID 30402) implements Interface Shpfy IGraphQL.
 /// </summary>
-codeunit 30400 "Shpfy GQL CustProdCollections" implements "Shpfy IGraphQL"
+codeunit 30402 "Shpfy GQL CustProdCollections" implements "Shpfy IGraphQL"
 {
     Access = Internal;
 

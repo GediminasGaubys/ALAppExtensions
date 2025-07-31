@@ -1,3 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.Integration.Shopify.Test;
+
+using Microsoft.Integration.Shopify;
+using System.TestLibraries.Utilities;
+
 codeunit 139545 "Shpfy Product Collection Subs."
 {
     EventSubscriberInstance = Manual;
@@ -60,8 +70,9 @@ codeunit 139545 "Shpfy Product Collection Subs."
         HttpResponseMessage: HttpResponseMessage;
         BodyTxt: Text;
         ResInStream: InStream;
+        ResponseFilePathTok: Label 'Products/EmptyPublishResponse.txt', Locked = true;
     begin
-        NavApp.GetResource('Products/EmptyPublishResponse.txt', ResInStream, TextEncoding::UTF8);
+        NavApp.GetResource(ResponseFilePathTok, ResInStream, TextEncoding::UTF8);
         ResInStream.ReadText(BodyTxt);
         HttpResponseMessage.Content.WriteFrom(BodyTxt);
         exit(HttpResponseMessage);
@@ -72,8 +83,9 @@ codeunit 139545 "Shpfy Product Collection Subs."
         HttpResponseMessage: HttpResponseMessage;
         BodyTxt: Text;
         ResInStream: InStream;
+        ResponseFilePathTok: Label 'Products/CreatedProductResponse.txt', Locked = true;
     begin
-        NavApp.GetResource('Products/CreatedProductResponse.txt', ResInStream, TextEncoding::UTF8);
+        NavApp.GetResource(ResponseFilePathTok, ResInStream, TextEncoding::UTF8);
         ResInStream.ReadText(BodyTxt);
         HttpResponseMessage.Content.WriteFrom(BodyTxt);
         exit(HttpResponseMessage);
@@ -86,10 +98,11 @@ codeunit 139545 "Shpfy Product Collection Subs."
         HttpResponseMessage: HttpResponseMessage;
         BodyTxt: Text;
         ResInStream: InStream;
+        responseFilePathTok: Label 'Products/CreatedVariantResponse.txt', Locked = true;
     begin
         Any.SetDefaultSeed();
         NewVariantId := Any.IntegerInRange(100000, 999999);
-        NavApp.GetResource('Products/CreatedVariantResponse.txt', ResInStream, TextEncoding::UTF8);
+        NavApp.GetResource(responseFilePathTok, ResInStream, TextEncoding::UTF8);
         ResInStream.ReadText(BodyTxt);
         HttpResponseMessage.Content.WriteFrom(StrSubstNo(BodyTxt, NewVariantId));
         exit(HttpResponseMessage);
@@ -100,9 +113,10 @@ codeunit 139545 "Shpfy Product Collection Subs."
         HttpResponseMessage: HttpResponseMessage;
         BodyTxt: Text;
         EdgesTxt: Text;
+        GetProductCollectionsResponseTok: Label '{ "data": { "collections": { "edges": %1 } }}', Locked = true;
     begin
         this.JEdges.WriteTo(EdgesTxt);
-        BodyTxt := StrSubstNo('{ "data": { "collections": { "edges": %1 } }}', EdgesTxt);
+        BodyTxt := StrSubstNo(GetProductCollectionsResponseTok, EdgesTxt);
         HttpResponseMessage.Content.WriteFrom(BodyTxt);
         exit(HttpResponseMessage);
     end;

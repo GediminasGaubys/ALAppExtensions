@@ -1,3 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.Integration.Shopify.Test;
+
+using Microsoft.Integration.Shopify;
+using System.TestLibraries.Utilities;
+
 codeunit 139542 "Shpfy Product Collection Test"
 {
     Subtype = Test;
@@ -82,6 +92,8 @@ codeunit 139542 "Shpfy Product Collection Test"
         NonDefaultProductCollectionId: BigInteger;
         ActualQuery: Text;
         ProductId: BigInteger;
+        ProductPublishQueryTok: Label 'id: \"gid://shopify/Product/%1\"', Locked = true;
+        AddProductToCollectionQueryTok: Label '\"gid://shopify/Collection/%1\"', Locked = true;
     begin
         // [SCENARIO] Publishing product to Shopify with default Product Collections.
         this.Initialize();
@@ -106,13 +118,13 @@ codeunit 139542 "Shpfy Product Collection Test"
 
         // [THEN] Query for publishing the product is generated.
         ActualQuery := ProductCollectionSubs.GetPublishProductGraphQueryTxt();
-        this.LibraryAssert.IsTrue(ActualQuery.Contains(StrSubstNo('id: \"gid://shopify/Product/%1\"', ProductId)), 'Product Id is not in the query');
+        this.LibraryAssert.IsTrue(ActualQuery.Contains(StrSubstNo(ProductPublishQueryTok, ProductId)), 'Product Id is not in the query');
         // [THEN] Query for adding product contains default Product Collections.
         ActualQuery := ProductCollectionSubs.GetProductCreateGraphQueryTxt();
-        this.LibraryAssert.IsTrue(ActualQuery.Contains(StrSubstNo('\"gid://shopify/Collection/%1\"', DefaultProductCollection1Id)), 'Product Collection Id is not in the query');
-        this.LibraryAssert.IsTrue(ActualQuery.Contains(StrSubstNo('\"gid://shopify/Collection/%1\"', DefaultProductCollection2Id)), 'Product Collection Id is not in the query');
+        this.LibraryAssert.IsTrue(ActualQuery.Contains(StrSubstNo(AddProductToCollectionQueryTok, DefaultProductCollection1Id)), 'Product Collection Id is not in the query');
+        this.LibraryAssert.IsTrue(ActualQuery.Contains(StrSubstNo(AddProductToCollectionQueryTok, DefaultProductCollection2Id)), 'Product Collection Id is not in the query');
         // [THEN] Query does not contain non-default Product Collection Id.
-        this.LibraryAssert.IsFalse(ActualQuery.Contains(StrSubstNo('\"gid://shopify/Collection/%1\"', NonDefaultProductCollectionId)), 'Non-default Product Collection Id is in the query')
+        this.LibraryAssert.IsFalse(ActualQuery.Contains(StrSubstNo(AddProductToCollectionQueryTok, NonDefaultProductCollectionId)), 'Non-default Product Collection Id is in the query')
 
     end;
 
@@ -156,7 +168,7 @@ codeunit 139542 "Shpfy Product Collection Test"
         Product.Init();
         Product.Id := Id;
         Product."Shop Code" := this.Shop.Code;
-        Product.Insert(true);
+        Product.Insert(false);
     end;
 
     local procedure CreateShopifyVariant(Product: Record "Shpfy Product"; var ShpfyVariant: Record "Shpfy Variant"; Id: BigInteger)

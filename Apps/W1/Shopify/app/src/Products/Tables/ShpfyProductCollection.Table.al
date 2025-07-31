@@ -1,9 +1,14 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 /// <summary>
-/// Table Shpfy Product Collection (ID 30136).
+/// Table Shpfy Product Collection (ID 30163).
 /// </summary>
-table 30136 "Shpfy Product Collection"
+table 30163 "Shpfy Product Collection"
 {
     Caption = 'Shopify Product Collection';
     DataClassification = CustomerContent;

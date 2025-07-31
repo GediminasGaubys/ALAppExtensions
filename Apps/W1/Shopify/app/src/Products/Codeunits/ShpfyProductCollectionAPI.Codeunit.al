@@ -1,9 +1,14 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 /// <summary>
-/// Codeunit Shpfy Product Collection API (ID 30105).
+/// Codeunit Shpfy Product Collection API (ID 30404).
 /// </summary>
-codeunit 30105 "Shpfy Product Collection API"
+codeunit 30404 "Shpfy Product Collection API"
 {
     Access = Internal;
 
@@ -24,7 +29,7 @@ codeunit 30105 "Shpfy Product Collection API"
         Parameters: Dictionary of [Text, Text];
         CurrentCollections: List of [BigInteger];
     begin
-        CurrentCollections := this.CollectCollections(ShopCode);
+        CurrentCollections := this.RetrieveCollections(ShopCode);
 
         this.CommunicationMgt.SetShop(ShopCode);
         GraphQLType := GraphQLType::GetCustomProductCollections;
@@ -44,7 +49,7 @@ codeunit 30105 "Shpfy Product Collection API"
         this.RemoveNotExistingCollections(CurrentCollections);
     end;
 
-    local procedure CollectCollections(ShopCode: Code[20]): List of [BigInteger]
+    local procedure RetrieveCollections(ShopCode: Code[20]): List of [BigInteger]
     var
         ProductCollection: Record "Shpfy Product Collection";
         Collections: List of [BigInteger];
@@ -81,7 +86,7 @@ codeunit 30105 "Shpfy Product Collection API"
                 ProductCollection.Init();
                 ProductCollection.Validate(Id, CollectionId);
                 ProductCollection.Validate(Name, this.JsonHelper.GetValueAsText(JPublication, '$.node.title'));
-                ProductCollection."Shop Code" := ShopCode;
+                ProductCollection.Validate("Shop Code", ShopCode);
                 ProductCollection.Insert(true);
             end else
                 CurrentCollections.Remove(CollectionId);
