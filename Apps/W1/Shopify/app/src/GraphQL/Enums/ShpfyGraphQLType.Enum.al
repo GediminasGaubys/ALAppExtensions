@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 /// <summary>
@@ -630,12 +635,22 @@ enum 30111 "Shpfy GraphQL Type" implements "Shpfy IGraphQL"
         Caption = 'Update Product Option';
         Implementation = "Shpfy IGraphQL" = "Shpfy GQL UpdateProductOption";
     }
-    value(127; GetCustomProductCollections)
+    value(127; GetStaffMembers)
+    {
+        Caption = 'Get Staff Members';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL GetStaffMembers";
+    }
+    value(128; GetNextStaffMembers)
+    {
+        Caption = 'Get Next Staff Members';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextStaffMembers";
+    }
+    value(129; GetCustomProductCollections)
     {
         Caption = 'Get Custom Product Collections';
         Implementation = "Shpfy IGraphQL" = "Shpfy GQL CustProdCollections";
     }
-    value(128; GetNextCustomProductCollections)
+    value(130; GetNextCustomProductCollections)
     {
         Caption = 'Get Next Custom Product Collections';
         Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextCustProdColls";

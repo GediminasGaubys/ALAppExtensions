@@ -17,11 +17,7 @@
   "idRanges": [
     {
       "from": 30100,
-      "to": 30399
-    },
-    {
-      "from": 30400,
-      "to": 30499
+      "to": 30450
     }
   ],
   "internalsVisibleTo": [
@@ -39,7 +35,8 @@
   "application": "27.0.0.0",
   "target": "OnPrem",
   "features": [
-    "NoImplicitWith"
+    "NoImplicitWith",
+    "TranslationFile"
   ],
   "resourceFolders": [
     ".resources"
