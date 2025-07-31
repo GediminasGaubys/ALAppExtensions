@@ -21,9 +21,11 @@ codeunit 139544 "Shpfy Create Item API Test"
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         OutboundHttpRequests: Codeunit "Library - Variable Storage";
-        ShopifyShop: Codeunit "Library - Variable Storage";
         ShpfyCreateItemAPITest: Codeunit "Shpfy Create Item API Test";
         IsInitialized: Boolean;
+        ShopCode: Code[20];
+        ProductId: BigInteger;
+        VariantId: BigInteger;
         CreateItemErr: Label 'Item not created', Locked = true;
         UnexpectedAPICallsErr: Label 'More than expected API calls to Shopify detected.';
         ShopifyShopUrlTok: Label 'admin\/api\/.+\/graphql.json', Locked = true;
@@ -52,8 +54,10 @@ codeunit 139544 "Shpfy Create Item API Test"
         this.RegExpectedOutboundHttpRequestsForGetProducts();
 
         // [GIVEN] A Shopify variant record of a standard shopify product. (The variant record always exists, even if the products don't have any variants.)
-        Shop.Get(this.ShopifyShop.PeekText(1));
+        Shop.Get(this.ShopCode);
         ShopifyVariant := ProductInitTest.CreateStandardProduct(Shop);
+        this.ProductId := ShopifyVariant."Product Id";
+        this.VariantId := ShopifyVariant."Id";
 
         // [GIVEN] A Shopify product record has error logged.
         Product.Get(ShopifyVariant."Product Id");
@@ -94,8 +98,10 @@ codeunit 139544 "Shpfy Create Item API Test"
         this.RegExpectedOutboundHttpRequestsForGetProducts();
 
         // [GIVEN] A Shopify variant record of a standard shopify product. (The variant record always exists, even if the products don't have any variants.)
-        Shop.Get(this.ShopifyShop.PeekText(1));
+        Shop.Get(this.ShopCode);
         ShopifyVariant := ProductInitTest.CreateStandardProduct(Shop);
+        this.ProductId := ShopifyVariant."Product Id";
+        this.VariantId := ShopifyVariant."Id";
 
         // [WHEN] Invoke ShpfyCreateItem.CreateItemFromShopifyProduct to unsuccessfully create item from Shopify product.
         Product.Get(ShopifyVariant."Product Id");
@@ -135,9 +141,9 @@ codeunit 139544 "Shpfy Create Item API Test"
             3:
                 this.LoadResourceIntoHttpResponse(ProductResponseTok, Response);
             2:
-                this.LoadResourceIntoHttpResponse(ProductVariantsResponseTok, Response);
+                this.LoadProductVariantsHttpResponse(ProductVariantsResponseTok, Response);
             1:
-                this.LoadResourceIntoHttpResponse(ProductVariantResponseTok, Response);
+                this.LoadProductVariantHttpResponse(ProductVariantResponseTok, Response);
             0:
                 Error(this.UnexpectedAPICallsErr);
         end;
@@ -169,7 +175,7 @@ codeunit 139544 "Shpfy Create Item API Test"
         Shop."Auto Create Unknown Items" := true;
         Shop.Modify(false);
 
-        this.ShopifyShop.Enqueue(Shop.Code);
+        this.ShopCode := Shop.Code;
         // Disable Event Mocking 
         CommunicationMgt.SetTestInProgress(false);
         //Register Shopify Access Token
@@ -189,6 +195,27 @@ codeunit 139544 "Shpfy Create Item API Test"
     local procedure LoadResourceIntoHttpResponse(ResourceText: Text; var Response: TestHttpResponseMessage)
     begin
         Response.Content.WriteFrom(NavApp.GetResourceAsText(ResourceText, TextEncoding::UTF8));
+        this.OutboundHttpRequests.DequeueText();
+    end;
+
+    local procedure LoadProductVariantHttpResponse(ResourceText: Text; var Response: TestHttpResponseMessage)
+    var
+        ResultTxt: Text;
+    begin
+        ResultTxt := NavApp.GetResourceAsText(ResourceText, TextEncoding::UTF8);
+        ResultTxt := ResultTxt.Replace('{{ProductId}}', this.ProductId.ToText());
+        Response.Content.WriteFrom(ResultTxt);
+        this.OutboundHttpRequests.DequeueText();
+    end;
+
+    local procedure LoadProductVariantsHttpResponse(ResourceText: Text; var Response: TestHttpResponseMessage)
+    var
+        ResultTxt: Text;
+    begin
+        ResultTxt := NavApp.GetResourceAsText(ResourceText, TextEncoding::UTF8);
+        ResultTxt := ResultTxt.Replace('{{ProductId}}', this.ProductId.ToText());
+        ResultTxt := ResultTxt.Replace('{{VariantId}}', this.VariantId.ToText());
+        Response.Content.WriteFrom(ResultTxt);
         this.OutboundHttpRequests.DequeueText();
     end;
 }
