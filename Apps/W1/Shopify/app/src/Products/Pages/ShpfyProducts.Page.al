@@ -359,7 +359,7 @@ page 30126 "Shpfy Products"
                     Product: Record "Shpfy Product";
                     CreateItem: Codeunit "Shpfy Create Item";
                 begin
-                    if Confirm(this.ConfirmLbl) then begin
+                    if Confirm(this.CreateItemConfirmLbl) then begin
                         CurrPage.SetSelectionFilter(Product);
                         CreateItem.CreateItemsFromShopifyProducts(Product);
                         CurrPage.Update(false);
@@ -485,5 +485,5 @@ page 30126 "Shpfy Products"
         AddItemsMsg: Label 'Add Items to Shopify';
         SyncProductsMsg: Label 'Sync Products';
         NoItemNotificationMsg: Label 'There isn''t data here yet. Do you want to synchronize products?';
-        ConfirmLbl: Label 'Create item(s) from the selected Shopify product(s)?';
+        CreateItemConfirmLbl: Label 'Do you want to create items from selected Shopify products?';
 }
